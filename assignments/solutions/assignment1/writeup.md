@@ -30,6 +30,15 @@ It may help to draw a picture of your tetrahedron and label the vertices and ass
 
 **On your webpage, show a 360-degree gif animation of your tetrahedron. Also, list how many vertices and (triangle) faces your mesh should have.**
 
+![cube](output/q2_1.gif)
+
+There should be four vertices and four faces.
+
+```python
+vertices = torch.tensor([[math.sqrt(3),0,-1],[0,0,2],[-math.sqrt(3),0,-1],[0,3,0]])
+faces = torch.tensor([[1,0,3],[3,2,1],[0,2,3],[0,1,2]])	
+```
+
 
 
 ### 2.2 Constructing a Cube (5 points)
@@ -37,6 +46,23 @@ It may help to draw a picture of your tetrahedron and label the vertices and ass
 Construct a cube mesh and then render it from multiple viewpoints. Remember that we are still working with triangle meshes, so you will need to use two sets of triangle faces to represent one face of the cube.
 
 **On your webpage, show a 360-degree gif animation of your cube. Also, list how many vertices and (triangle) faces your mesh should have.**
+
+![cube](output/q2_2.gif)
+
+There should be 8 vertices and 12 faces.
+
+```python
+vertices = torch.tensor([[1.,0,1.],[1.,0.,-1.],[-1,0,-1],[-1,0,1],
+  [1,2,1],[1,2,-1],[-1.,2.,-1.],[-1.,2.,1.]])
+
+faces = torch.tensor([[1,0,2],[0,3,2],
+                      [2,3,6],[7,6,3],
+                      [1,4,0],[1,5,4],
+                      [1,2,6],[1,6,5],
+                      [0,4,7],[0,7,3],
+                      [4,5,7],[4,6,7],
+                      ])
+```
 
 
 
