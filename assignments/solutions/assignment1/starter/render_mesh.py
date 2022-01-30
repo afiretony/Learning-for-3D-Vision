@@ -82,7 +82,7 @@ def render_tetrahedron(
 
     # Prepare the camera:
     cameras = pytorch3d.renderer.FoVPerspectiveCameras(
-        R=torch.eye(3).unsqueeze(0), T=torch.tensor([[0, 0, 3]]), fov=60, device=device
+        R=torch.eye(3).unsqueeze(0), T=torch.tensor([[0, -1, 5]]), fov=60, device=device
     )
 
     # Place a point light in front of the cow.
@@ -96,8 +96,10 @@ def render_tetrahedron(
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--cow_path", type=str, default="data/cow.obj")
-    parser.add_argument("--output_path", type=str, default="images/cow_render.jpg")
+    # parser.add_argument("--output_path", type=str, default="images/cow_render.jpg")
     parser.add_argument("--image_size", type=int, default=256)
+    # image = render_cow(cow_path=args.cow_path, image_size=args.image_size)
+    parser.add_argument("--output_path", type=str, default="output/tetrahedron.jpg")
     args = parser.parse_args()
-    image = render_cow(cow_path=args.cow_path, image_size=args.image_size)
+    image = render_tetrahedron()
     plt.imsave(args.output_path, image)

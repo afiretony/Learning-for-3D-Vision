@@ -1,4 +1,6 @@
+from nis import match
 import torch
+import math
 from pytorch3d.renderer import (
     AlphaCompositor,
     RasterizationSettings,
@@ -123,4 +125,40 @@ def load_cow_mesh(path="data/cow_mesh.obj"):
     """
     vertices, faces, _ = load_obj(path)
     faces = faces.verts_idx
+    return vertices, faces
+
+
+def load_tetrahedron_mesh():
+    """
+    create tetrahedron mech from stretch
+
+    Returns:
+        vertices (torch.Tensor): The vertices of the mesh (N_v, 3).
+        faces (torch.Tensor): The faces of the mesh (N_f, 3).
+    """
+    vertices = torch.tensor([[math.sqrt(3),0,-1],[0,0,2],[-math.sqrt(3),0,-1],[0,3,0]])
+    faces = torch.tensor([[1,0,3],[3,2,1],[0,2,3],[0,1,2]])
+    # faces = faces.verts_idx
+    return vertices, faces
+
+def load_cube_mesh():
+    """
+    create tetrahedron mech from stretch
+
+    Returns:
+        vertices (torch.Tensor): The vertices of the mesh (N_v, 3).
+        faces (torch.Tensor): The faces of the mesh (N_f, 3).
+    """
+    vertices = torch.tensor([[1.,0,1.],[1.,0.,-1.],[-1,0,-1],[-1,0,1],
+    [1,2,1],[1,2,-1],[-1.,2.,-1.],[-1.,2.,1.]])
+
+    faces = torch.tensor([[1,0,2],[0,3,2],
+    [2,3,6],[7,6,3],
+    [1,4,0],[1,5,4],
+    [1,2,6],[1,6,5],
+    [0,4,7],[0,7,3],
+    [4,5,7],[4,6,7],
+    ])
+    
+    # faces = faces.verts_idx
     return vertices, faces
