@@ -70,20 +70,18 @@ faces = torch.tensor([[1,0,2],[0,3,2],
 
 Now let's practice re-texturing a mesh. For this task, we will be retexturing the cow mesh such that the color smoothly changes from the front of the cow to the back of the cow.
 
-More concretely, you will pick 2 RGB colors, `color1` and `color2`. We will assign the front of the cow a color of `color1`, and the back of the cow a color of `color2`. The front of the cow corresponds to the vertex with the smallest z-coordinate `z_min`, and the back of the cow corresponds to the vertex with the largest z-coordinate `z_max`. Then, we will assign the color of each vertex using linear interpolation based on the z-value of the vertex:
+**In your submission, describe your choice of `color1` and `color2`, and include a gif of the rendered mesh.**
+
+![cow](output/q3.gif)
+
+color of my choice:
 
 ```python
-alpha = (z - z_min) / (z_max - z_min)
-color = alpha * color2 + (1 - alpha) * color1
+color1 = torch.tensor([0,0,1]) # blue
+color2 = torch.tensor([1,1,1]) # white
 ```
 
-Your final output should look something like this:
 
-![Cow render](file:///Users/chenhaoyang/Desktop/16889/assignments/1/assignment1/images/cow_retextured.jpg)
-
-In this case, `color1 = [0, 0, 1]` and `color2 = [1, 0, 0]`.
-
-**In your submission, describe your choice of `color1` and `color2`, and include a gif of the rendered mesh.**
 
 ## 4. Camera Transformations (20 points)
 
@@ -91,13 +89,41 @@ When working with 3D, finding a reasonable camera pose is often the first step t
 
 Running `python -m starter.camera_transforms` produces the following image using the camera extrinsics rotation `R_0` and translation `T_0`:
 
-![Cow render](file:///Users/chenhaoyang/Desktop/16889/assignments/1/assignment1/images/transform_none.jpg)
+![Cow render](images/transform_none.jpg)
 
 What are the relative camera transformations that would produce each of the following output images? You shoud find a set (R_relative, T_relative) such that the new camera extrinsics with `R = R_relative @ R_0` and `T = R_relative @ T_0 + T_relative` produces each of the following images:
 
-![Cow render](file:///Users/chenhaoyang/Desktop/16889/assignments/1/assignment1/images/transform1.jpg) ![Cow render](file:///Users/chenhaoyang/Desktop/16889/assignments/1/assignment1/images/transform3.jpg) ![Cow render](file:///Users/chenhaoyang/Desktop/16889/assignments/1/assignment1/images/transform4.jpg) ![Cow render](file:///Users/chenhaoyang/Desktop/16889/assignments/1/assignment1/images/transform2.jpg)
+![Cow render](images/transform1.jpg) ![Cow render](images/transform3.jpg) ![Cow render](images/transform4.jpg) ![Cow render](images/transform2.jpg)
 
 **In your report, describe in words what R_relative and T_relative should be doing and include the rendering produced by your choice of R_relative and T_relative.**
+
+ ```Python
+ R_relative=[[0, -1, 0], [1, 0, 0], [0, 0, 1]]
+ ```
+
+![cam1](output/cam1.jpg)
+
+
+
+```python
+T_relative=[0, 0, 1]
+```
+
+![cam2](output/cam2.jpg)
+
+```python
+T_relative=[0.5, 0, 0]
+```
+
+![cam3](output/cam3.jpg)
+
+```python
+rotate_angle = -90. / 180. * math.pi
+R_relative=[math.cos(rotate_angle), 0, -math.sin(rotate_angle)], [0, 1, 0], [math.sin(rotate_angle), 0, math.cos(rotate_angle)]
+T_relative=[-3., 0, 3]
+```
+
+![cam4](output/cam4.jpg)
 
 ## 5. Rendering Generic 3D Representations
 
@@ -133,13 +159,13 @@ To see a full working example of rendering a point cloud, see `render_bridge` in
 
 If you run `python -m starter.render_generic --render point_cloud`, you should get the following output:
 
-![bridge](file:///Users/chenhaoyang/Desktop/16889/assignments/1/assignment1/images/bridge.jpg)
+![bridge](images/bridge.jpg)
 
 ### 5.1 Rendering Point Clouds from RGB-D Images (10 points)
 
 In this part, we will practice rendering point clouds constructed from 2 RGB-D images from the [Common Objects in 3D Dataset](https://github.com/facebookresearch/co3d).
 
-![plant](file:///Users/chenhaoyang/Desktop/16889/assignments/1/assignment1/images/plant.jpg)
+![plant](images/plant.jpg)
 
 In `render_generic.py`, the `load_rgbd_data` function will load the data for 2 images of the same plant. The dictionary should contain the RGB image, a depth map, a mask, and a Pytorch3D camera corresponding to the pose that the image was taken from.
 
@@ -161,7 +187,7 @@ A parametric function generates a 3D point for each point in the source domain. 
 
 By sampling values of `theta` and `phi`, we can generate a sphere point cloud. You can render a sphere point cloud by calling `python -m starter.render_generic --render parametric`. Note that the amount of samples can have an effect on the appearance quality. Below, we show the output with a 100x100 grid of (phi, theta) pairs (`--num_samples 100`) as well as a  1000x1000 grid (`--num_samples 1000`). The latter may take a long time to run on CPU.
 
-![Sphere 100](file:///Users/chenhaoyang/Desktop/16889/assignments/1/assignment1/images/sphere_100.jpg) ![Sphere 1000](file:///Users/chenhaoyang/Desktop/16889/assignments/1/assignment1/images/sphere_1000.jpg)
+![Sphere 100](images/sphere_100.jpg) ![Sphere 1000](images/sphere_1000.jpg)
 
 Your task is to render a [torus](https://en.wikipedia.org/wiki/Torus) point cloud by sampling its parametric function.
 
@@ -175,7 +201,7 @@ In practice, we can generate our voxel coordinates using `torch.meshgrid` which 
 
 A sample sphere mesh can be constructed implicitly and rendered by calling `python -m starter.render_generic --render implicit`. The output should like like this:
 
-![Sphere mesh](file:///Users/chenhaoyang/Desktop/16889/assignments/1/assignment1/images/sphere_mesh.jpg)
+![Sphere mesh](images/sphere_mesh.jpg)
 
 Your task is to render a torus again, this time as a mesh defined by an implicit function.
 
