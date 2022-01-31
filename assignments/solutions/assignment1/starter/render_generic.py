@@ -114,7 +114,7 @@ if __name__ == "__main__":
         default="point_cloud",
         choices=["point_cloud", "parametric", "implicit"],
     )
-    parser.add_argument("--output_path", type=str, default="images/bridge.jpg")
+    parser.add_argument("--output_path", type=str, default="output/bridge.jpg")
     parser.add_argument("--image_size", type=int, default=256)
     parser.add_argument("--num_samples", type=int, default=100)
     args = parser.parse_args()

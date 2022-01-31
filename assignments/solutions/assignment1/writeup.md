@@ -97,6 +97,10 @@ What are the relative camera transformations that would produce each of the foll
 
 **In your report, describe in words what R_relative and T_relative should be doing and include the rendering produced by your choice of R_relative and T_relative.**
 
+
+
+**R_relative** is the rotation matrix of the camera relative to it initial twist pose. **T_relative** is the translation matrix as in form of [x,y,z] realtive to the camera's initial position.
+
  ```Python
  R_relative=[[0, -1, 0], [1, 0, 0], [0, 0, 1]]
  ```
