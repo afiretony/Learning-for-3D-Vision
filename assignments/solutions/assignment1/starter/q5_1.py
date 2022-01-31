@@ -1,11 +1,3 @@
-"""
-Sample code to render various representations.
-
-Usage:
-    python -m starter.render_generic --render point_cloud  # 5.1
-    python -m starter.render_generic --render parametric  --num_samples 100  # 5.2
-    python -m starter.render_generic --render implicit  # 5.3
-"""
 import argparse
 import pickle
 from tqdm.auto import tqdm
@@ -36,7 +28,7 @@ def render_plant(
     """
     def common_render(output_file):
         renders = []
-        angles = np.linspace(0,360,num_frames)
+        angles = np.linspace(0,180,num_frames)
         for i, angle in enumerate(tqdm(angles)):
             R, T = pytorch3d.renderer.look_at_view_transform(dist=6.0, elev=10, azim=angle)
             cameras = pytorch3d.renderer.FoVPerspectiveCameras(R=R, T=T, device=device)

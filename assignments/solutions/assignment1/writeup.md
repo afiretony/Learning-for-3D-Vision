@@ -187,29 +187,15 @@ Try visualizing each of the point clouds from various camera viewpoints. We sugg
 
 ### 5.2 Parametric Functions (10 points)
 
-A parametric function generates a 3D point for each point in the source domain. For example, given an elevation `theta` and azimuth `phi`, we can parameterize the surface of a unit sphere as `(sin(theta) * cos(phi), cos(theta), sin(theta) * sin(phi))`.
-
-By sampling values of `theta` and `phi`, we can generate a sphere point cloud. You can render a sphere point cloud by calling `python -m starter.render_generic --render parametric`. Note that the amount of samples can have an effect on the appearance quality. Below, we show the output with a 100x100 grid of (phi, theta) pairs (`--num_samples 100`) as well as a  1000x1000 grid (`--num_samples 1000`). The latter may take a long time to run on CPU.
-
-![Sphere 100](images/sphere_100.jpg) ![Sphere 1000](images/sphere_1000.jpg)
-
-Your task is to render a [torus](https://en.wikipedia.org/wiki/Torus) point cloud by sampling its parametric function.
-
 **In your writeup, include a 360-degree gif of your torus point cloud, and make sure the hole is visible. You may choose to texture your point cloud however you wish.**
+
+![torus](output/q5_2.gif)
 
 ### 5.3 Implicit Surfaces (15 points)
 
-In this part, we will explore representing geometry as a function in the form of an implicit function. In general, given a function F(x, y, z), we can define the surface to be the zero level-set of F i.e. (x,y,z) such that F(x, y, z) = 0. The function F can be a mathematical equation or even a neural network. To visualize such a representation, we can discretize the 3D space and evaluate the implicit function, storing the values in a voxel grid. Finally, to recover the mesh, we can run the [marching cubes](https://en.wikipedia.org/wiki/Marching_cubes) algorithm to extract the 0-level set.
-
-In practice, we can generate our voxel coordinates using `torch.meshgrid` which we will use to query our function (in this case mathematical ones). Once we have our voxel grid, we can use the  [`mcubes`](https://github.com/pmneila/PyMCubes) library convert into a mesh.
-
-A sample sphere mesh can be constructed implicitly and rendered by calling `python -m starter.render_generic --render implicit`. The output should like like this:
-
-![Sphere mesh](images/sphere_mesh.jpg)
-
-Your task is to render a torus again, this time as a mesh defined by an implicit function.
-
 **In your writeup, include a 360-degree gif of your torus mesh, and make sure the hole is visible. In addition, discuss some of the tradeoffs between rendering as a mesh vs a point cloud. Things to consider might include rendering speed, rendering quality, ease of use, memory usage, etc.**
+
+![torus again](output/q5_3.gif)
 
 ## 6. Do Something Fun (10 points)
 
