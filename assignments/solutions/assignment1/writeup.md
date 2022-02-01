@@ -185,6 +185,8 @@ Try visualizing each of the point clouds from various camera viewpoints. We sugg
 
 **In your submission, include a gif of each of these point clouds side-by-side.**
 
+![5.1.1](output/q5_1_1.gif)![5.1.1](output/q5_1_2.gif)![5.1.1](output/q5_1_3.gif)
+
 ### 5.2 Parametric Functions (10 points)
 
 **In your writeup, include a 360-degree gif of your torus point cloud, and make sure the hole is visible. You may choose to texture your point cloud however you wish.**

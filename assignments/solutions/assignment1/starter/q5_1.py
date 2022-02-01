@@ -19,7 +19,7 @@ def load_rgbd_data(path="data/rgbd_data.pkl"):
 
 
 def render_plant(
-    image_size=512,
+    image_size=256,
     background_color=(1, 1, 1),
     device=None,
 ):
@@ -28,9 +28,12 @@ def render_plant(
     """
     def common_render(output_file):
         renders = []
-        angles = np.linspace(0,180,num_frames)
+        angles = np.linspace(0,360,num_frames)
         for i, angle in enumerate(tqdm(angles)):
-            R, T = pytorch3d.renderer.look_at_view_transform(dist=6.0, elev=10, azim=angle)
+            R, T = pytorch3d.renderer.look_at_view_transform(dist=6.0, elev=0, azim=angle)
+            R_relative=[[-1, 0, 0], [0, -1, 0], [0, 0, 1]]
+            R_relative = torch.tensor(R_relative).float()
+            R = R @ R_relative
             cameras = pytorch3d.renderer.FoVPerspectiveCameras(R=R, T=T, device=device)
             rend = renderer(point_cloud, cameras=cameras)
             rend = rend.cpu().numpy()[0, ..., :3]  # (B, H, W, 4) -> (H, W, 3)
@@ -46,7 +49,7 @@ def render_plant(
 
     # parameters of gif    
     duration = 5
-    num_frames = 2
+    num_frames = 20
 
     if device is None:
         device = get_device()
