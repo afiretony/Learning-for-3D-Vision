@@ -1,8 +1,3 @@
-"""
-Usage:
-    python -m starter.dolly_zoom --num_frames 10
-"""
-
 import argparse
 
 import imageio

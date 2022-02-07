@@ -32,7 +32,7 @@ It may help to draw a picture of your tetrahedron and label the vertices and ass
 
 ![cube](output/q2_1.gif)
 
-There should be four vertices and four faces.
+There should be **4** vertices and **4** faces.
 
 ```python
 vertices = torch.tensor([[math.sqrt(3),0,-1],[0,0,2],[-math.sqrt(3),0,-1],[0,3,0]])
@@ -49,7 +49,7 @@ Construct a cube mesh and then render it from multiple viewpoints. Remember that
 
 ![cube](output/q2_2.gif)
 
-There should be 8 vertices and 12 faces.
+There should be **8** vertices and **12** faces.
 
 ```python
 vertices = torch.tensor([[1.,0,1.],[1.,0.,-1.],[-1,0,-1],[-1,0,1],
