@@ -71,8 +71,7 @@ def bullet_time(
     angles = np.linspace(0,360, num_frames)
     for i, angle in enumerate(tqdm(angles)):
         R, T = pytorch3d.renderer.cameras.look_at_view_transform(dist=3.0, elev=0.0, azim=angle)
-        cameras = pytorch3d.renderer.FoVPerspectiveCameras(T=T, device=device)
-        cameras.get_full_projection_transform(R=R)
+        cameras = pytorch3d.renderer.FoVPerspectiveCameras(T=T, R=R, device=device)
         rend = renderer(mesh, cameras=cameras, lights=lights)
         rend = rend[0, ..., :3].cpu().numpy()  # (N, H, W, 3)
         renders.append(rend)
