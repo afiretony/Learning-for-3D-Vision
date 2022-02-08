@@ -33,9 +33,8 @@ def bullet_time(
     renders = []
     angles = np.linspace(0,360, num_frames)
     for i, angle in enumerate(tqdm(angles)):
-        R, T = pytorch3d.renderer.cameras.look_at_view_transform(dist=3.0, elev=0.0, azim=angle)
+        R, T = pytorch3d.renderer.cameras.look_at_view_transform(dist=1000.0, elev=15.0, azim=angle)
         cameras = pytorch3d.renderer.FoVPerspectiveCameras(T=T, R=R, device=device)
-        # cameras.get_full_projection_transform(R=R)
         rend = renderer(mesh, cameras=cameras, lights=lights)
         rend = rend[0, ..., :3].cpu().numpy()  # (N, H, W, 3)
         renders.append(rend)
@@ -51,10 +50,10 @@ def bullet_time(
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--num_frames", type=int, default=100)
-    parser.add_argument("--duration", type=float, default=3)
+    parser.add_argument("--num_frames", type=int, default=300)
+    parser.add_argument("--duration", type=float, default=5)
     parser.add_argument("--output_file", type=str, default="output/helico.gif")
-    parser.add_argument("--image_size", type=int, default=512)
+    parser.add_argument("--image_size", type=int, default=720)
     args = parser.parse_args()
     bullet_time(
         image_size=args.image_size,
