@@ -62,7 +62,7 @@ def render_plant(
     depth = torch.from_numpy(data['depth1']).to(device)
     mask = torch.from_numpy(data['mask1']).to(device)
 
-    camera = data['cameras1']
+    camera = data['cameras1'].to(device)
     verts1, rgba1 = unproject_depth_image(rgb, mask, depth, camera)
     verts1 = verts1.unsqueeze(0)
     rgb = rgba1[:,:3].unsqueeze(0)
@@ -75,7 +75,7 @@ def render_plant(
     rgb = torch.from_numpy(data['rgb2']).to(device)
     depth = torch.from_numpy(data['depth2']).to(device)
     mask = torch.from_numpy(data['mask2']).to(device)
-    camera = data['cameras2']
+    camera = data['cameras2'].to(device)
     verts2, rgba2 = unproject_depth_image(rgb, mask, depth, camera)
     verts2 = verts2.unsqueeze(0)
     rgb = rgba2[:,:3].unsqueeze(0)
