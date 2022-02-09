@@ -32,7 +32,7 @@ def bullet_time(
         v1 = verts[faces[i][0]][:]
         v2 = verts[faces[i][1]][:]
         v3 = verts[faces[i][2]][:]
-        areas[i] = abs(0.5 * torch.inner(v1-v2, v1-v3))
+        areas[i] = 0.5 * torch.cross(v1-v2, v1-v3).norm()
     
     weight = areas / sum(areas)
 
