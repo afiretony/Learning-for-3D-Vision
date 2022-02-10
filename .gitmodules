@@ -1,3 +1,6 @@
 [submodule "assignments/content/assignment1"]
 	path = assignments/content/assignment1
 	url = https://github.com/learning3d/assignment1.git
+[submodule "assignments/content/assignment2"]
+	path = assignments/content/assignment2
+	url = https://github.com/learning3d/assignment2.git
