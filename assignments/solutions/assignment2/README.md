@@ -22,6 +22,18 @@ Run the file `python fit_data.py --type 'vox'`, to fit the source voxel grid to 
 
 Visualize the optimized voxel grid along-side the ground truth voxel grid using the tools learnt in previous section.
 
+**Optimized voxel grid:**
+
+Note that there's no direct rendering method for voxels in `pytorch3d`, the voxel was first transformed to mesh by `pytorch3d.ops.cubify` and then rendered by mesh render.
+
+
+
+![v1](voxelsrc.png)
+
+**Ground Truth voxel:**
+
+![gt](voxeltgt.png)
+
 ### 1.2. Fitting a point cloud (10 points)
 In this subsection, we will define chamfer loss that can help us <b> fit a 3D point cloud </b>.
 Define the loss functions [here](https://github.com/learning3d/a2_internal/blob/037b19c92e7f2ed41edd4e4667c66360998a7f32/losses.py#L10) in `losses.py` file.
@@ -30,6 +42,14 @@ Define the loss functions [here](https://github.com/learning3d/a2_internal/blob/
 Run the file `python fit_data.py --type 'point'`, to fit the source point cloud to the target point cloud. 
 
 Visualize the optimized point cloud along-side the ground truth point cloud using the tools learnt in previous section.
+
+**Optimized point cloud:**
+
+![pcd](t1.png)
+
+**Ground Truth:**
+
+![gt](t2.png)
 
 ### 1.3. Fitting a mesh (5 points)
 In this subsection, we will define an additional smoothening loss that can help us <b> fit a mesh</b>.
@@ -41,9 +61,17 @@ Run the file `python fit_data.py --type 'mesh'`, to fit the source mesh to the t
 
 Visualize the optimized mesh along-side the ground truth mesh using the tools learnt in previous section.
 
+**Optimized mesh:**
+
+![mesh](meshsrc.png)
+
+![gt](meshtgt.png)
+
 ## 2. Reconstructing 3D from single view
+
 This section will involve training a single view to 3D pipeline for voxels, point clouds and meshes.
 Refer to the `save_freq` argument in `train_model.py` to save the model checkpoint quicker/slower. 
+
 ### 2.1. Image to voxel grid (15 points)
 In this subsection, we will define a neural network to decode binary voxel grids.
 Define the decoder network [here](https://github.com/learning3d/a2_internal/blob/037b19c92e7f2ed41edd4e4667c66360998a7f32/model.py#L21) in `model.py` file, then reference your decoder [here](https://github.com/learning3d/a2_internal/blob/037b19c92e7f2ed41edd4e4667c66360998a7f32/model.py#L47) in `model.py` file

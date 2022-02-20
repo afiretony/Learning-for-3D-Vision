@@ -20,6 +20,7 @@ import mcubes
 import numpy as np
 import pytorch3d
 from utils import get_device, get_mesh_renderer, get_points_renderer
+from visualize import visualize_mesh, visualize_voxel
 
 def get_args_parser():
     parser = argparse.ArgumentParser('Model Fit', add_help=False)
@@ -31,6 +32,8 @@ def get_args_parser():
     parser.add_argument('--w_chamfer', default=1.0, type=float)
     parser.add_argument('--w_smooth', default=0.1, type=float)
     return parser
+
+
 
 def fit_mesh(mesh_src, mesh_tgt, args):
     start_iter = 0
@@ -64,45 +67,9 @@ def fit_mesh(mesh_src, mesh_tgt, args):
         print("[%4d/%4d]; ttime: %.0f (%.2f); loss: %.3f" % (step, args.max_iter, total_time,  iter_time, loss_vis))        
     
     mesh_src.offset_verts_(deform_vertices_src)
-
+    visualize_mesh(mesh_src, 'meshsrc.png')
+    visualize_mesh(mesh_tgt, 'meshtgt.png')
     print('Done!')
-
-
-    
-
-def visualize_pdc(point_cloud_src):
-  output_file = 'test.png'
-  device = get_device()
-
-  points = point_cloud_src[0]
-  color = (points - points.min()) / (points.max() - points.min())
-
-  render_point_cloud = pytorch3d.structures.Pointclouds(
-      points=[points], features=[color],
-  ).to(device)
-  
-  renderer = get_points_renderer(image_size=256, device=device)
-  cameras = pytorch3d.renderer.FoVPerspectiveCameras(T=[[0, 0, 3]], device=device)
-  rend = renderer(render_point_cloud, cameras=cameras)
-
-    # renders = []
-    # angles = np.linspace(0,180,num_frames)
-    # for i, angle in enumerate(tqdm(angles)):
-    #     R, T = pytorch3d.renderer.look_at_view_transform(dist=5.0, elev=2, azim=angle)
-    #     cameras = pytorch3d.renderer.FoVPerspectiveCameras(R=R, T=T, device=device)
-    #     renderer = get_points_renderer(image_size=image_size, device=device)
-    #     rend = renderer(sphere_point_cloud, cameras=cameras)
-    #     rend = rend.cpu().numpy()[0, ..., :3]  # (B, H, W, 4) -> (H, W, 3)
-    #     renders.append(rend)
-  print(rend.shape)
-  # (r * 255).astype(np.uint8)
-  image = (rend*255).detach().cpu().numpy().astype(np.uint8).reshape((256,256,3))
-  print(image.shape)
-  plt.figure(figsize=(10, 10))
-  plt.imshow(image[0, ..., :3])
-  plt.imsave(output_file,image)
-  plt.axis("off");
-  return
 
 def fit_pointcloud(pointclouds_src, pointclouds_tgt, args):
     start_iter = 0
@@ -152,7 +119,9 @@ def fit_voxel(voxels_src, voxels_tgt, args):
         loss_vis = loss.cpu().item()
 
         print("[%4d/%4d]; ttime: %.0f (%.2f); loss: %.3f" % (step, args.max_iter, total_time,  iter_time, loss_vis))
-    
+    visualize_voxel(voxels_src, 'voxelsrc.png')
+    visualize_voxel(voxels_tgt, 'voxeltgt.png')
+
     print('Done!')
 
 
