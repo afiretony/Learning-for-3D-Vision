@@ -85,7 +85,10 @@ You need to add the respective visualization code in `eval_model.py`
 
 On your webpage, you should include visuals of any three examples in the test set. For each example show the input RGB, render of the predicted 3D voxel grid and a render of the ground truth mesh.
 
+
+
 ### 2.2. Image to point cloud (15 points)
+
 In this subsection, we will define a neural network to decode point clouds.
 Similar as above, define the decoder network [here](https://github.com/learning3d/a2_internal/blob/037b19c92e7f2ed41edd4e4667c66360998a7f32/model.py#L25) in `model.py` file, then reference your decoder [here](https://github.com/learning3d/a2_internal/blob/037b19c92e7f2ed41edd4e4667c66360998a7f32/model.py#L52) in `model.py` file
 
