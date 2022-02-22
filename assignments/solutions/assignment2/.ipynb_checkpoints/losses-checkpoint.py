@@ -23,7 +23,7 @@ def chamfer_loss(point_cloud_src,point_cloud_tgt):
     # dists1 = dists1.reshape((-1, N)) # [batch_size, num_points]
     # dists2 = dists2.reshape((-1, N))
     # loss_chamfer = torch.sum(dists1,1) + torch.sum(dists2,1)
-    # print(point_cloud_src.shape)
+    print(point_cloud_src.shape)
     loss_chamfer2,_ = chamfer_distance(point_cloud_src, point_cloud_tgt)
     return loss_chamfer2
 
