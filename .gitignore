@@ -1,3 +1,5 @@
 **/.DS_Store
 **/__pycache__
 /lectures
+**/r2n2_shapenet_dataset.zip
+**/r2n2_shapenet_dataset
