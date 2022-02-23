@@ -13,7 +13,7 @@ from pytorch3d.ops import cubify
 def visualize_mesh(mesh_src, output_path):
     image_size = 512
     device = get_device()
-    color=[1.0, 0.,0.]
+    color=[253/255, 185/255,200/255]
     vertices, faces = mesh_src.verts_list()[0], mesh_src.faces_list()[0]
 
     vertices = vertices.unsqueeze(0)  # (N_v, 3) -> (1, N_v, 3)
