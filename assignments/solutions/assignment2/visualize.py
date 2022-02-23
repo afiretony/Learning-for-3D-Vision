@@ -19,7 +19,7 @@ def visualize_mesh(mesh_src, output_path):
     vertices = vertices.unsqueeze(0)  # (N_v, 3) -> (1, N_v, 3)
     faces = faces.unsqueeze(0)  # (N_f, 3) -> (1, N_f, 3)
     textures = torch.ones_like(vertices)  # (1, N_v, 3)
-    textures = textures * torch.tensor(color)  # (1, N_v, 3)
+    textures = textures.to(device) * torch.tensor(color).to(device)  # (1, N_v, 3)
     textures.to(device)
     
     mesh = pytorch3d.structures.Meshes(
@@ -85,7 +85,8 @@ def visualize_pcd(point_cloud_src, outpput_path):
     ).to(device)
 
     renderer = get_points_renderer(image_size=256, device=device)
-    cameras = pytorch3d.renderer.FoVPerspectiveCameras(T=[[0, 0, 1.5]], device=device)
+    R, T = pytorch3d.renderer.cameras.look_at_view_transform(dist=1.5, elev=0.5, azim=90, at=((0, 0, 0), ))
+    cameras = pytorch3d.renderer.FoVPerspectiveCameras(T=T,  R=R, device=device)
     rend = renderer(render_point_cloud, cameras=cameras)
 
     image = (rend*255).detach().cpu().numpy().astype(np.uint8).reshape((256,256,3))

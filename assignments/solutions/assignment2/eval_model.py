@@ -138,17 +138,24 @@ def evaluate_model(args):
         metrics = evaluate(predictions, mesh_gt, args)
 
         # TODO:
-        if (step % args.vis_freq) == 0:
+        if (step % vis_freq) == 0:
+            plt.figure(figsize=(10,10))
+            images_gt = images_gt.cpu().numpy().squeeze(0)
             if args.type == 'point':
-                visualize.visualize_pcd(predictions, f'figures/{args.type}_{step}.png')
+                visualize.visualize_pcd(predictions, f'figures/point/{args.type}_{step}.png')
+                plt.imsave(f'figures/point/gt_img_{step}.png', images_gt)
+                visualize.visualize_mesh(mesh_gt, f'figures/point/gt_mesh_{step}.png')
+                
             if args.type == 'vox':
-                visualize.visualize_voxel(predictions, f'figures/{args.type}_{step}.png')
+                visualize.visualize_voxel(predictions[0], f'figures/vox/{args.type}_{step}.png')
+                plt.imsave(f'figures/vox/gt_img_{step}.png', images_gt)
+                visualize.visualize_mesh(mesh_gt, f'figures/vox/gt_mesh_{step}.png')
+                
             if args.type == 'mesh':
-                visualize.visualize_mesh(predictions, f'figures/{args.type}_{step}.png')
+                visualize.visualize_mesh(predictions, f'figures/mesh/{args.type}_{step}.png')
+                plt.imsave(f'figures/mesh/gt_img_{step}.png', images_gt)
+                visualize.visualize_mesh(mesh_gt, f'figures/mesh/gt_mesh_{step}.png')
             
-            
-            plt.imsave(f'gt_img_{step}.png', images_gt.cpu())
-            visualize.visualize_mesh(mesh_gt, f'figures/gt_mesh_{step}.png')
             print(f'Type: {args.type}, step {step} saved successfully!')
 
         total_time = time.time() - start_time

@@ -123,7 +123,7 @@ def train_model(args):
                 'step': step,
                 'model_state_dict': model.state_dict(),
                 'optimizer_state_dict': optimizer.state_dict()
-                }, f'checkpoint_{args.type}_{step}.pth')
+                }, f'checkpoint_{args.type}.pth')
 
         print("[%4d/%4d]; ttime: %.0f (%.2f, %.2f); loss: %.3f" % (step, args.max_iter, total_time, read_time, iter_time, loss_vis))
 

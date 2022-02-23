@@ -40,7 +40,7 @@ class SingleViewto3D(nn.Module):
         elif args.type == "point":
             self.n_point = args.n_points
             in_channels = 512
-            channels = [256, 128, 64, 32, 16]
+            channels = [256, 128, 64]
             modules = []
             for mid_channels in channels:
                 modules += [
@@ -58,7 +58,8 @@ class SingleViewto3D(nn.Module):
                                    kernel_size=4, stride=2, padding=1),
                 nn.BatchNorm2d(out_channels),
                 nn.Flatten(),
-                nn.Linear(12288, self.n_point*3)
+                nn.Linear(768, self.n_point*3),
+                nn.Tanh() # activation layer
             ]
 
             self.decoder = torch.nn.Sequential(*modules)
@@ -68,8 +69,26 @@ class SingleViewto3D(nn.Module):
             mesh_pred = ico_sphere(4,'cuda')
             
             self.mesh_pred = pytorch3d.structures.Meshes(mesh_pred.verts_list()*args.batch_size, mesh_pred.faces_list()*args.batch_size)
+            
+            n_verts = mesh_pred.verts_list()[0].shape[0]
+            
             # TODO:
-            # self.decoder =             
+            in_features = 512
+            layers = [1024, 2048, 4096]
+            modules = []
+            for layer in layers:
+                modules += [
+                    nn.Linear(in_features, layer),
+                    nn.LeakyReLU()
+                ]
+                in_features = layer
+            modules += [
+                nn.Linear(in_features, n_verts*3),
+                nn.Tanh() # activation layer
+            ]
+            
+            
+            self.decoder = torch.nn.Sequential(*modules)
 
     def forward(self, images, args):
         results = dict()
@@ -92,13 +111,12 @@ class SingleViewto3D(nn.Module):
 
         elif args.type == "point":
             # TODO:
-            
             pointclouds_pred = self.decoder(encoded_feat.reshape((batch_size, 512, 1, 1)))
             return pointclouds_pred.reshape((batch_size, args.n_points, 3))
 
         elif args.type == "mesh":
             # TODO:
-            # deform_vertices_pred =             
+            deform_vertices_pred = self.decoder(encoded_feat)
             mesh_pred = self.mesh_pred.offset_verts(deform_vertices_pred.reshape([-1,3]))
             return  mesh_pred          
 
