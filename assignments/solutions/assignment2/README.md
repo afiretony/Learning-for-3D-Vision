@@ -100,28 +100,29 @@ Provide an intutive explaination justifying the comparision.
 |  pointcloud  | 0.001 |    91.042    |
 |     mesh     | 0.010 |    81.547    |
 
-Generally, we can find that F-score is proportional to the loss during training and F-score of `point cloud` > `mesh` > `voxel` . 
+Generally, we can find that F-score is proportional to the loss during training and F-score of `point cloud` > `mesh` > `voxel`. There can be two possible reasons for this: 
+* We directly used chamfer loss to optimize point cloud and mesh but binary cross entropy loss for voxel, and F1 score is measuring the closeness of predicted points and ground truth. Such that  
+
+we directly use chamfer loss to optimize for the reconstructed point locations, and F1 is exactly measuring whether predicted points and ground truth are close. For mesh fitting, it performs reasonably well because we also use chamfer loss on sampled points. For voxels however, we do not optimize for sampled point location. Another reason might because the voxel representation is too small (32x32x32) to accurate capture the precise location.
 
 
 
 ### 2.5. Analyse effects of hyperparms variations (10 points)
 
-Analyse the results, by varying an hyperparameter of your choice.
-For example `n_points` or `vox_size` or `w_chamfer` or `initial mesh(ico_sphere)` etc.
-Try to be unique and conclusive in your analysis.
+In this section, I analyzed the effect of `w_chamfer` (weight of chamfer loss) on the training results.
+
+| w_smooth | w_chamfer | Loss  | F-score@0.05 |
+| :------: | :-------: | :---: | :----------: |
+| 1       |    0.1    |  0.012  |  38.059   |
+| 1       |    0.5    |  0.012  | 68.350  |
+| 1       |    1    |  0.014  | 73.853 |
+| 1       |    10    |  0.054  | 74.512  |
+| 1       |    50    |  0.220  | 79.452  |
 
 
+**For consistancy, each model was trained with 100 iteration and using same parameters**
+
+The initial ratio of w_smooth and w_chamfer was 0.1, which is too small in my belief, because the generated chair mesh was spiky. Incresing weight of smooth loss intuitively makes the surface flatter, so I set w_smooth to 1.2 in final presentation. In this section, I further explored the effect of ratio of w_smooth and w_chamfer in order to get more understandings. As listed in the table, we can notice that higher w_chamfer makes F-score better, but not necessarily the visual results. This is because F-score is computed similar to chamfer loss, or at least more related, so we can see it gives more rewards to higher w_chamfer/w_smooth ratio model. However, such model may not have a good visual presentation. To conclude, we still lack of a single evaluating metric that can be both need both qualitative and quantitative for mesh generated, it is worth to be developed.
 
 ### 2.6. Interpret your model (15 points)
-Simply seeing final predictions and numerical evaluations is not always insightful. Can you create some visualizations that help highlight what your learned model does? Be creative and think of what visualizations would help you gain insights. There is no `right' answer - although reading some papers to get inspiration might give you ideas.
 
-
-## 3. (Extra Credit) Exploring some recent architectures.
-
-### 3.1 Implicit network (10 points)
-Implement a implicit decoder that takes in as input 3D locations and outputs the occupancy value.
-Some papers for inspiration [[1](https://arxiv.org/abs/2003.04618),[2](https://arxiv.org/abs/1812.03828)]
-
-### 3.2 Parametric network (10 points)
-Implement a parametric function that takes in as input sampled 2D points and outputs their respective 3D point.
-Some papers for inspiration [[1](https://arxiv.org/abs/1802.05384),[2](https://arxiv.org/abs/1811.10943)]

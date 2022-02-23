@@ -147,14 +147,15 @@ def evaluate_model(args):
                 visualize.visualize_mesh(mesh_gt, f'figures/point/gt_mesh_{step}.png')
                 
             if args.type == 'vox':
-                visualize.visualize_voxel(predictions[0], f'figures/vox/{args.type}_{step}.png')
-                plt.imsave(f'figures/vox/gt_img_{step}.png', images_gt)
-                visualize.visualize_mesh(mesh_gt, f'figures/vox/gt_mesh_{step}.png')
-                
+                # visualize.visualize_voxel(predictions[0], f'figures/vox/{args.type}_{step}.png')
+                # plt.imsave(f'figures/vox/gt_img_{step}.png', images_gt)
+                # visualize.visualize_mesh(mesh_gt, f'figures/vox/gt_mesh_{step}.png')
+                visualize.visualize_voxel_likelyhood(predictions[0], f'figures/vox_likelyhood/{args.type}_{step}.png')
             if args.type == 'mesh':
-                visualize.visualize_mesh(predictions, f'figures/mesh/{args.type}_{step}.png')
-                plt.imsave(f'figures/mesh/gt_img_{step}.png', images_gt)
-                visualize.visualize_mesh(mesh_gt, f'figures/mesh/gt_mesh_{step}.png')
+                pass
+                # visualize.visualize_mesh(predictions, f'figures/mesh/{args.type}_{step}.png')
+                # plt.imsave(f'figures/mesh/gt_img_{step}.png', images_gt)
+                # visualize.visualize_mesh(mesh_gt, f'figures/mesh/gt_mesh_{step}.png')
             
             print(f'Type: {args.type}, step {step} saved successfully!')
 
