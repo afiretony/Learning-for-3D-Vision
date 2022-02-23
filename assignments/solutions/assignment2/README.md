@@ -100,7 +100,7 @@ Provide an intutive explaination justifying the comparision.
 |  pointcloud  | 0.001 |    91.042    |
 |     mesh     | 0.010 |    81.547    |
 
-**intutive explaination**:
+Generally, we can find that F-score is proportional to the loss during training and F-score of `point cloud` > `mesh` > `voxel` . 
 
 
 
