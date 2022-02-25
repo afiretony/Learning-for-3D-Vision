@@ -16,16 +16,15 @@ def voxel_loss(voxel_src, voxel_tgt):
 
 def chamfer_loss(point_cloud_src,point_cloud_tgt):
     # implement chamfer loss from scratch
-    # N = point_cloud_src.shape[1]
-    # dists1, _, _ = knn_points(point_cloud_src, point_cloud_tgt, K=1)
-    # dists2, _, _ = knn_points(point_cloud_tgt, point_cloud_src, K=1)
-    # # K=1 because we just take the minimum distance
-    # dists1 = dists1.reshape((-1, N)) # [batch_size, num_points]
-    # dists2 = dists2.reshape((-1, N))
-    # loss_chamfer = torch.sum(dists1,1) + torch.sum(dists2,1)
-    # print(point_cloud_src.shape)
-    loss_chamfer2,_ = chamfer_distance(point_cloud_src, point_cloud_tgt)
-    return loss_chamfer2
+    N = point_cloud_src.shape[1]
+    dists1, _, _ = knn_points(point_cloud_src, point_cloud_tgt, K=1)
+    dists2, _, _ = knn_points(point_cloud_tgt, point_cloud_src, K=1)
+    # K=1 because we just take the minimum distance
+    dists1 = dists1.reshape((-1, N)) # [batch_size, num_points]
+    dists2 = dists2.reshape((-1, N))
+    loss_chamfer = torch.sum(dists1,1) + torch.sum(dists2,1)
+    # loss_chamfer2,_ = chamfer_distance(point_cloud_src, point_cloud_tgt)
+    return loss_chamfer
 
 def smoothness_loss(mesh_src):
     loss_laplacian = mesh_laplacian_smoothing(mesh_src)

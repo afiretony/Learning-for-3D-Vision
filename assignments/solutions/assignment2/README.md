@@ -101,9 +101,8 @@ Provide an intutive explaination justifying the comparision.
 |     mesh     | 0.010 |    81.547    |
 
 Generally, we can find that F-score is proportional to the loss during training and F-score of `point cloud` > `mesh` > `voxel`. There can be two possible reasons for this: 
-* We directly used chamfer loss to optimize point cloud and mesh but binary cross entropy loss for voxel, and F1 score is measuring the closeness of predicted points and ground truth. Such that  
-
-we directly use chamfer loss to optimize for the reconstructed point locations, and F1 is exactly measuring whether predicted points and ground truth are close. For mesh fitting, it performs reasonably well because we also use chamfer loss on sampled points. For voxels however, we do not optimize for sampled point location. Another reason might because the voxel representation is too small (32x32x32) to accurate capture the precise location.
+* Why `voxel`<`pc & mesh` : We directly used chamfer loss to optimize point cloud and mesh but binary cross entropy loss for voxel, and F1 score is measuring the closeness of predicted points and ground truth. Such that, it may not be a friendly indicator for voxels; Also, because of the sampling method for voxel and it is too small (32x32x32), it may not be accurate enough.
+* Why `pc` > `mesh` : though not too much difference, `pc` get higher score because `mesh` was trained using combined loss(chamfer and smooth), higher weight of smooth loss typically reduces F-score (as experimented and explained in the next section).
 
 
 
@@ -124,5 +123,18 @@ In this section, I analyzed the effect of `w_chamfer` (weight of chamfer loss) o
 
 The initial ratio of w_smooth and w_chamfer was 0.1, which is too small in my belief, because the generated chair mesh was spiky. Incresing weight of smooth loss intuitively makes the surface flatter, so I set w_smooth to 1.2 in final presentation. In this section, I further explored the effect of ratio of w_smooth and w_chamfer in order to get more understandings. As listed in the table, we can notice that higher w_chamfer makes F-score better, but not necessarily the visual results. This is because F-score is computed similar to chamfer loss, or at least more related, so we can see it gives more rewards to higher w_chamfer/w_smooth ratio model. However, such model may not have a good visual presentation. To conclude, we still lack of a single evaluating metric that can be both need both qualitative and quantitative for mesh generated, it is worth to be developed.
 
-### 2.6. Interpret your model (15 points)
+### 2.6. Interpret your model
 
+One feature worth to be added on is to visualize the **likelihood** of our predicted voxel if possible, so we can see distribution of the probability and better our model. To implement this idea, I created groups of voxels that are in same range of likelihood (e.g. between 0.1 and 0.2 as one group, 0.2~0.3 another and so on), give them textures of different colors and render them together in the same picture. Details are in `visualize.visualize_voxel_likelyhood()` , I used `pytorch3d.ops.cubify` to turn voxel to meshes and `pytorch3d.structures.join_meshes_as_scene` for concatenating meshes. I chose color from **red** to **blue** as indicator of likelihood from **high** to **low**.
+
+Visualizations of my previous trained predictions using voxels are below:
+
+![img](figures/vox_likelyhood/vox_0.png)
+
+![img](figures/vox_likelyhood/vox_10.png)
+
+![img](figures/vox_likelyhood/vox_140.png)
+
+This way, we can easily find out that boundaries of the chair typically have lower likelihood and inners have higher likelihood.
+
+---
