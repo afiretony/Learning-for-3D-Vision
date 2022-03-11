@@ -64,6 +64,17 @@ class RayBundle(object):
         return self
 
 
+def get_device():
+    """
+    Checks if GPU is available and returns device accordingly.
+    """
+    if torch.cuda.is_available():
+        device = torch.device("cuda:0")
+    else:
+        device = torch.device("cpu")
+    return device
+
+
 # Sample image colors from pixel values
 def sample_images_at_xy(
     images: torch.Tensor,
@@ -121,7 +132,8 @@ def get_rays_from_pixels(xy_grid, image_size, camera):
     W, H = image_size[0], image_size[1]
 
     # TODO (1.3): Map pixels to points on the image plane at Z=1
-    pass
+    device = get_device()
+    ndc_points = xy_grid.to(device)
 
     ndc_points = torch.cat(
         [
@@ -132,13 +144,18 @@ def get_rays_from_pixels(xy_grid, image_size, camera):
     )
 
     # TODO (1.3): Use camera.unproject to get world space points on the image plane from NDC space points
-    pass
+
+    xyz_unproj_world = camera.unproject_points(ndc_points, world_coordinates=True)
+
+    print('---')
+    # print(xyz_unproj_world)
 
     # TODO (1.3): Get ray origins from camera center
-    pass
+    rays_o = torch.zeros_like(ndc_points)
 
     # TODO (1.3): Get normalized ray directions
-    pass
+    rays_d = torch.nn.functional.normalize(xyz_unproj_world, p=2.0, dim=1)
+    rays_d = torch.nn.functional.normalize(ndc_points, p=2.0, dim=1)
 
     # Create and return RayBundle
     return RayBundle(

@@ -36,6 +36,8 @@ from dataset import (
     trivial_collate,
 )
 
+import render_functions
+
 
 # Model class containing:
 #   1) Implicit volume defining the scene
@@ -98,15 +100,36 @@ def render_images(
         ray_bundle = get_rays_from_pixels(xy_grid, image_size, camera) # TODO (1.3): implement in ray_utils.py
 
         # TODO (1.3): Visualize xy grid using vis_grid
+        W, H = image_size[0], image_size[1]
+
         if cam_idx == 0 and file_prefix == '':
-            pass
+            image = xy_grid.cpu().numpy().reshape(W,H,2)
+            # the sample output is shifted
+            image  = (image + 1 )/ 2.
+            image = np.absolute(image)
+
+            # create B channel
+            image = np.concatenate((image, np.zeros((W,H,1))), axis = -1)
+
+            plt.figure(figsize=(10, 10))
+            plt.imshow(image)
+            plt.imsave('vis_grid.png',image)
+            plt.axis("off")
+
+
 
         # TODO (1.3): Visualize rays using vis_rays
         if cam_idx == 0 and file_prefix == '':
-            pass
+            rays_d = ray_bundle.directions
+            image = rays_d.cpu().numpy().reshape(W,H,3)
+            image = np.absolute(image)
+            plt.figure(figsize=(10, 10))
+            plt.imshow(image)
+            plt.imsave('vis_rays.png',image)
+            plt.axis("off")
+
         
         # TODO (1.4): Implement point sampling along rays in sampler.py
-        pass
 
         # TODO (1.4): Visualize sample points as point cloud
         if cam_idx == 0 and file_prefix == '':
