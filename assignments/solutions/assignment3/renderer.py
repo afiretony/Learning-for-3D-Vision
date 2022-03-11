@@ -23,7 +23,7 @@ class VolumeRenderer(torch.nn.Module):
         eps: float = 1e-10
     ):
         # TODO (1.5): Compute transmittance using the equation described in the README
-        pass
+        
 
         # TODO (1.5): Compute weight used for rendering from transmittance and density
         return weights
