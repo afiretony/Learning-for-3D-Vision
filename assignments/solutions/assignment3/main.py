@@ -37,6 +37,7 @@ from dataset import (
 )
 
 import render_functions
+import sampler
 
 
 # Model class containing:
@@ -129,13 +130,15 @@ def render_images(
             plt.axis("off")
 
         
-        # TODO (1.4): Implement point sampling along rays in sampler.py
+        # TODO (1.4): Implement point sampling along rays in sampler.
+        # sampler =  sampler_dict[cfg.sampler.type](cfg.sampler)
 
         # TODO (1.4): Visualize sample points as point cloud
         if cam_idx == 0 and file_prefix == '':
             pass
 
         # TODO (1.5): Implement rendering in renderer.py
+        
         out = model(ray_bundle)
 
         # Return rendered features (colors)
@@ -170,7 +173,7 @@ def render(
     # Render spiral
     cameras = create_surround_cameras(3.0, n_poses=20)
     all_images = render_images(
-        model, cameras, cfg.data.image_size
+        model, cameras, cfg.data.image_size,
     )
     imageio.mimsave('images/part_1.gif', [np.uint8(im * 255) for im in all_images])
 

@@ -3,7 +3,7 @@ import torch
 from typing import List, Optional, Tuple
 from pytorch3d.renderer.cameras import CamerasBase
 
-
+from ray_utils import get_device
 # Volume renderer which integrates color and density along rays
 # according to the equations defined in [Mildenhall et al. 2020]
 class VolumeRenderer(torch.nn.Module):
@@ -22,10 +22,22 @@ class VolumeRenderer(torch.nn.Module):
         rays_density: torch.Tensor,
         eps: float = 1e-10
     ):
+        # print('-----------------------------------')
+        # print('rays_density',rays_density)
+        # print('deltas:', deltas)
+
         # TODO (1.5): Compute transmittance using the equation described in the README
-        
+        n_rays, n_sample_per_ray = rays_density.shape[0], rays_density.shape[1]
+        T = torch.zeros(n_rays, n_sample_per_ray).to(get_device())
+
+        T[:,0] = 1.0 # first segment = 1
+        for j in range(1, n_sample_per_ray):
+            T[:,j] = T[:, j-1] * torch.exp(-rays_density[:, j, 0] * deltas[:, j-1, 0])
 
         # TODO (1.5): Compute weight used for rendering from transmittance and density
+        weights = T.reshape(-1,1) * (1.-torch.exp(-rays_density.reshape(-1,1)*deltas.reshape(-1,1)))
+        weights = weights.reshape(n_rays, n_sample_per_ray)
+
         return weights
     
     def _aggregate(
@@ -33,10 +45,18 @@ class VolumeRenderer(torch.nn.Module):
         weights: torch.Tensor,
         rays_feature: torch.Tensor
     ):
-        # TODO (1.5): Aggregate (weighted sum of) features using weights
-        pass
+        # # TODO (1.5): Aggregate (weighted sum of) features using weights
+        n_rays, n_samples = weights.shape[0], weights.shape[1]
+        # rays_feature = rays_feature.reshape(n_rays, n_samples, 3)
+
+        feature = weights.reshape(-1,1) * rays_feature
+        feature = feature.reshape(n_rays, n_samples, 3)
+        feature = torch.sum(feature, dim = 1)
 
         return feature
+
+        # print(weights.shape, rays_feature.shape)
+        # return torch.sum(weights * rays_feature, dim=1)
 
     def forward(
         self,
@@ -45,7 +65,7 @@ class VolumeRenderer(torch.nn.Module):
         ray_bundle,
     ):
         B = ray_bundle.shape[0]
-
+        
         # Process the chunks of rays.
         chunk_outputs = []
 
@@ -54,6 +74,7 @@ class VolumeRenderer(torch.nn.Module):
 
             # Sample points along the ray
             cur_ray_bundle = sampler(cur_ray_bundle)
+
             n_pts = cur_ray_bundle.sample_shape[1]
 
             # Call implicit function with sample points
@@ -63,6 +84,7 @@ class VolumeRenderer(torch.nn.Module):
 
             # Compute length of each ray segment
             depth_values = cur_ray_bundle.sample_lengths[..., 0]
+
             deltas = torch.cat(
                 (
                     depth_values[..., 1:] - depth_values[..., :-1],
@@ -78,10 +100,10 @@ class VolumeRenderer(torch.nn.Module):
             ) 
 
             # TODO (1.5): Render (color) features using weights
-            pass
+            feature = self._aggregate(weights, feature)
 
             # TODO (1.5): Render depth map
-            pass
+            depth = torch.ones((n_pts, 1))
 
             # Return
             cur_out = {
