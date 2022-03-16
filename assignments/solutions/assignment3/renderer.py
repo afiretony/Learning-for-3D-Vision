@@ -22,8 +22,7 @@ class VolumeRenderer(torch.nn.Module):
         rays_density: torch.Tensor,
         eps: float = 1e-10
     ):
-        # print('-----------------------------------')
-        # print('rays_density',rays_density)
+        # print('density:', rays_density)
         # print('deltas:', deltas)
 
         # TODO (1.5): Compute transmittance using the equation described in the README
@@ -55,9 +54,6 @@ class VolumeRenderer(torch.nn.Module):
 
         return feature
 
-        # print(weights.shape, rays_feature.shape)
-        # return torch.sum(weights * rays_feature, dim=1)
-
     def forward(
         self,
         sampler,
@@ -81,6 +77,8 @@ class VolumeRenderer(torch.nn.Module):
             implicit_output = implicit_fn(cur_ray_bundle)
             density = implicit_output['density']
             feature = implicit_output['feature']
+            # print(density)
+            # print(feature)
 
             # Compute length of each ray segment
             depth_values = cur_ray_bundle.sample_lengths[..., 0]

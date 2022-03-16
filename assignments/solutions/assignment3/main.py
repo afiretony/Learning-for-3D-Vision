@@ -93,7 +93,10 @@ def render_images(
     device = list(model.parameters())[0].device
 
     for cam_idx, camera in enumerate(cameras):
+        # if cam_idx != 10:
+        #     continue
         print(f'Rendering image {cam_idx}')
+        
 
         torch.cuda.empty_cache()
         camera = camera.to(device)
@@ -131,7 +134,7 @@ def render_images(
 
         
         # TODO (1.4): Implement point sampling along rays in sampler.
-        # sampler =  sampler_dict[cfg.sampler.type](cfg.sampler)
+
 
         # TODO (1.4): Visualize sample points as point cloud
         if cam_idx == 0 and file_prefix == '':
@@ -140,6 +143,7 @@ def render_images(
         # TODO (1.5): Implement rendering in renderer.py
         
         out = model(ray_bundle)
+        # print(ray_bundle.sample_points[0,:,:])
 
         # Return rendered features (colors)
         image = np.array(

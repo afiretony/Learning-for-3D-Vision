@@ -147,16 +147,13 @@ def get_rays_from_pixels(xy_grid, image_size, camera):
 
     xyz_unproj_world = camera.unproject_points(ndc_points, world_coordinates=True)
 
-    print('---')
-    # print(xyz_unproj_world)
-
     # TODO (1.3): Get ray origins from camera center
-    rays_o = torch.zeros_like(ndc_points)
+    rays_o = camera.get_camera_center() * torch.ones_like(ndc_points)
 
     # TODO (1.3): Get normalized ray directions
-    rays_d = torch.nn.functional.normalize(xyz_unproj_world, p=2.0, dim=1)
-    
-    # rays_d = torch.nn.functional.normalize(ndc_points, p=2.0, dim=1)
+    rays_d = torch.nn.functional.normalize(xyz_unproj_world - rays_o, p=2.0, dim=1)
+
+    # print('rays_d:', rays_d)
 
     # Create and return RayBundle
     return RayBundle(

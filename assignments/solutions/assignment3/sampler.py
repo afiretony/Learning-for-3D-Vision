@@ -24,27 +24,18 @@ class StratifiedRaysampler(torch.nn.Module):
     ):
         # TODO (1.4): Compute z values for self.n_pts_per_ray points uniformly sampled between [near, far]
         n_rays = ray_bundle.origins.shape[0]
-        z_vals = torch.linspace(self.min_depth + 0.001, self.max_depth, self.n_pts_per_ray, device = get_device())
+        z_vals = torch.linspace(self.min_depth, self.max_depth, self.n_pts_per_ray, device = get_device())
 
         # TODO (1.4): Sample points from z values
         sample_points = torch.zeros((n_rays, self.n_pts_per_ray, 3), device = get_device())
         
         for i in range(n_rays):
             # for each ray, sample n points
-            scale = z_vals / ray_bundle.directions[i][-1] # m
-            sample_points[i] = scale.unsqueeze(-1) * ray_bundle.directions[i].reshape(1,3)
-            # print(sample_points[i].shape)
+            scale = torch.abs(z_vals / ray_bundle.directions[i][2]) # m
+            sample_points[i] = scale.unsqueeze(-1) @ ray_bundle.directions[i].reshape(1,3) + ray_bundle.origins[i,:].reshape(1,3)
 
-        # make z_vals be nxmx1
         z_vals = torch.ones((n_rays,1)).to(get_device()) @ z_vals.reshape(1, -1)
         z_vals = z_vals.reshape(n_rays, self.n_pts_per_ray, 1)
-        # print(z_vals.shape)
-
-        # visualize
-        # print('createing ray visualizaiton')
-        # print(sample_points.shape)
-        # render_points('1.4.png', sample_points[25105].unsqueeze(0), image_size=256, color=[0.7, 0.7, 1])
-
 
         return ray_bundle._replace(
             sample_points=sample_points,
