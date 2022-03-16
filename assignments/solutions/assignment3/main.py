@@ -7,6 +7,7 @@ import torch
 import tqdm
 import imageio
 
+
 from omegaconf import DictConfig
 from PIL import Image
 from pytorch3d.renderer import (
@@ -89,11 +90,11 @@ def render_images(
     save=False,
     file_prefix=''
 ):
-    all_images = []
+    all_images, all_depth = [], []
     device = list(model.parameters())[0].device
 
     for cam_idx, camera in enumerate(cameras):
-        # if cam_idx != 10:
+        # if cam_idx != 5:
         #     continue
         print(f'Rendering image {cam_idx}')
         
@@ -154,8 +155,19 @@ def render_images(
         all_images.append(image)
 
         # TODO (1.5): Visualize depth
-        if cam_idx == 2 and file_prefix == '':
-            pass
+        depth = np.array(
+            out['depth'].view(
+                image_size[1], image_size[0], 1
+                ).detach().cpu()
+        )
+        depth = depth * np.ones((image_size[1], image_size[0], 3))
+            # plt.figure(figsize=(10, 10))
+            # plt.imshow(depth)
+            # plt.imsave('depth.png',depth)
+            # plt.axis("off")
+        
+        all_depth.append(depth)
+
 
         # Save
         if save:
@@ -163,8 +175,12 @@ def render_images(
                 f'{file_prefix}_{cam_idx}.png',
                 image
             )
+            plt.imsave(
+                f'{file_prefix}_{cam_idx}_depth.png',
+                depth
+            )
     
-    return all_images
+    return all_images, all_depth
 
 
 def render(
@@ -176,10 +192,12 @@ def render(
 
     # Render spiral
     cameras = create_surround_cameras(3.0, n_poses=20)
-    all_images = render_images(
+    all_images, all_depth = render_images(
         model, cameras, cfg.data.image_size,
     )
     imageio.mimsave('images/part_1.gif', [np.uint8(im * 255) for im in all_images])
+    imageio.mimsave('images/part_1_depth.gif', [np.uint8(im * 255) for im in all_depth])
+
 
 
 def train(

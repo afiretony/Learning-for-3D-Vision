@@ -33,7 +33,11 @@ class StratifiedRaysampler(torch.nn.Module):
             # for each ray, sample n points
             scale = torch.abs(z_vals / ray_bundle.directions[i][2]) # m
             sample_points[i] = scale.unsqueeze(-1) @ ray_bundle.directions[i].reshape(1,3) + ray_bundle.origins[i,:].reshape(1,3)
-
+        # print(scale)
+        # print(ray_bundle.origins)
+        # print('direacton')
+        # print(ray_bundle.directions[0])
+        # print(sample_points[0])
         z_vals = torch.ones((n_rays,1)).to(get_device()) @ z_vals.reshape(1, -1)
         z_vals = z_vals.reshape(n_rays, self.n_pts_per_ray, 1)
 

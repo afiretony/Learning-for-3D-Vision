@@ -1,5 +1,5 @@
 import torch
-
+import matplotlib.pyplot as plt
 from typing import List, Optional, Tuple
 from pytorch3d.renderer.cameras import CamerasBase
 
@@ -22,35 +22,56 @@ class VolumeRenderer(torch.nn.Module):
         rays_density: torch.Tensor,
         eps: float = 1e-10
     ):
-        # print('density:', rays_density)
         # print('deltas:', deltas)
 
-        # TODO (1.5): Compute transmittance using the equation described in the README
-        n_rays, n_sample_per_ray = rays_density.shape[0], rays_density.shape[1]
-        T = torch.zeros(n_rays, n_sample_per_ray).to(get_device())
+        # # TODO (1.5): Compute transmittance using the equation described in the README
+        # n_rays, n_sample_per_ray = rays_density.shape[0], rays_density.shape[1]
+        # T = torch.zeros(n_rays, n_sample_per_ray).to(get_device())
 
-        T[:,0] = 1.0 # first segment = 1
-        for j in range(1, n_sample_per_ray):
-            T[:,j] = T[:, j-1] * torch.exp(-rays_density[:, j, 0] * deltas[:, j-1, 0])
+        # T[:,0] = 1.0 # first segment = 1
+        # for j in range(1, n_sample_per_ray):
+        #     T[:,j] = T[:, j-1] * torch.exp(-rays_density[:, j, 0] * deltas[:, j-1, 0])
 
-        # TODO (1.5): Compute weight used for rendering from transmittance and density
-        weights = T.reshape(-1,1) * (1.-torch.exp(-rays_density.reshape(-1,1)*deltas.reshape(-1,1)))
-        weights = weights.reshape(n_rays, n_sample_per_ray)
+        # # TODO (1.5): Compute weight used for rendering from transmittance and density
+        # weights = T.reshape(-1,1) * (1.-torch.exp(-rays_density.reshape(-1,1)*deltas.reshape(-1,1)))
+        # weights = weights.reshape(n_rays, n_sample_per_ray)
 
+        # rays_density = torch.ones_like(rays_density) * 0.
+        # for i in range(30):
+        #     print(rays_density[i*1000])
+        # print(torch.sum(rays_density, dim = 0))
+        T = torch.cumprod(
+            torch.cat(
+                (
+                torch.ones((deltas.shape[0], 1, deltas.shape[2])).to(get_device()),
+                torch.exp(-(deltas * rays_density))[:, 0:-1, :]
+                ),
+                dim = 1
+            ),
+            dim = 1
+        )
+        weights = T * (1-torch.exp(-rays_density*deltas))
         return weights
     
     def _aggregate(
         self,
-        weights: torch.Tensor,
+        weights: torch.Tensor, 
         rays_feature: torch.Tensor
     ):
         # # TODO (1.5): Aggregate (weighted sum of) features using weights
-        n_rays, n_samples = weights.shape[0], weights.shape[1]
-        # rays_feature = rays_feature.reshape(n_rays, n_samples, 3)
+        # n_rays, n_samples = weights.shape[0], weights.shape[1]
+        # # rays_feature = rays_feature.reshape(n_rays, n_samples, 3)
+        # plt.figure(figsize=(10, 10))
+        # image=rays_feature.reshape(1024, 2048, 3).detach().cpu().numpy()
+        # plt.imsave('feature.png',image)
+        # plt.axis("off")
+        # return
 
-        feature = weights.reshape(-1,1) * rays_feature
-        feature = feature.reshape(n_rays, n_samples, 3)
-        feature = torch.sum(feature, dim = 1)
+        # feature = weights.reshape(-1,1) * rays_feature
+        # feature = feature.reshape(n_rays, n_samples, 3)
+        # feature = torch.sum(feature, dim = 1)
+        # print(weights.shape)
+        feature = torch.sum(weights * rays_feature, dim=1)
 
         return feature
 
@@ -78,7 +99,7 @@ class VolumeRenderer(torch.nn.Module):
             density = implicit_output['density']
             feature = implicit_output['feature']
             # print(density)
-            # print(feature)
+            # print(feature.shape)
 
             # Compute length of each ray segment
             depth_values = cur_ray_bundle.sample_lengths[..., 0]
@@ -98,11 +119,26 @@ class VolumeRenderer(torch.nn.Module):
             ) 
 
             # TODO (1.5): Render (color) features using weights
-            feature = self._aggregate(weights, feature)
+            feature = self._aggregate(weights, feature.view(-1, n_pts, 3))
 
             # TODO (1.5): Render depth map
-            depth = torch.ones((n_pts, 1))
-
+            # density: [n x m x 1]
+            density = density.view(-1, n_pts, 1)
+            depth = torch.zeros((density.shape[0], 1)).to(get_device())
+            for j in range(n_pts):
+                # print(density.shape)
+                # print(depth.shape)
+                # a=density[:,j] > 0.0
+                # b = depth[:,0] > 0.0
+                # print(a.shape)
+                # print(b.shape)
+                idx = torch.logical_and(density[:,j,0] > 0.0, depth[:,0] < 0.01 )
+                # print(j)
+                # # where density is not zero
+                # idx = torch.nonzero(idx)
+                # print(idx)
+                depth[idx] = 1.0 - j / n_pts 
+            # print(depth.shape)
             # Return
             cur_out = {
                 'feature': feature,
