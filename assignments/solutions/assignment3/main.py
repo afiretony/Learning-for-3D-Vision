@@ -132,7 +132,6 @@ def render_images(
             plt.imshow(image)
             plt.imsave('vis_rays.png',image)
             plt.axis("off")
-
         
         # TODO (1.4): Implement point sampling along rays in sampler.
 
@@ -161,10 +160,6 @@ def render_images(
                 ).detach().cpu()
         )
         depth = depth * np.ones((image_size[1], image_size[0], 3))
-            # plt.figure(figsize=(10, 10))
-            # plt.imshow(depth)
-            # plt.imsave('depth.png',depth)
-            # plt.axis("off")
         
         all_depth.append(depth)
 

@@ -40,16 +40,23 @@ class VolumeRenderer(torch.nn.Module):
         # for i in range(30):
         #     print(rays_density[i*1000])
         # print(torch.sum(rays_density, dim = 0))
-        T = torch.cumprod(
-            torch.cat(
-                (
-                torch.ones((deltas.shape[0], 1, deltas.shape[2])).to(get_device()),
-                torch.exp(-(deltas * rays_density))[:, 0:-1, :]
-                ),
-                dim = 1
-            ),
-            dim = 1
-        )
+
+        # T = torch.cumprod(
+        #     torch.cat(
+        #         (
+        #         torch.ones((deltas.shape[0], 1, deltas.shape[2])).to(get_device()),
+        #         torch.exp(-(deltas * rays_density))[:, 0:-1, :]
+        #         ),
+        #         dim = 1
+        #     ),
+        #     dim = 1
+        # )
+        n_rays, n_sample_per_ray = deltas.shape[0], deltas.shape[1]
+        multiplier = torch.exp(-(deltas * rays_density))
+        T = torch.ones(n_rays, n_sample_per_ray,1).to(get_device())
+        for i in range(1, n_sample_per_ray):
+            T[:,i,:] = T[:,i-1,:] * multiplier[:,i-1,:]
+
         weights = T * (1-torch.exp(-rays_density*deltas))
         return weights
     
@@ -126,20 +133,13 @@ class VolumeRenderer(torch.nn.Module):
             density = density.view(-1, n_pts, 1)
             depth = torch.zeros((density.shape[0], 1)).to(get_device())
             for j in range(n_pts):
-                # print(density.shape)
-                # print(depth.shape)
-                # a=density[:,j] > 0.0
-                # b = depth[:,0] > 0.0
-                # print(a.shape)
-                # print(b.shape)
-                idx = torch.logical_and(density[:,j,0] > 0.0, depth[:,0] < 0.01 )
-                # print(j)
-                # # where density is not zero
-                # idx = torch.nonzero(idx)
-                # print(idx)
+                # find where density is larger than thershold and dpeth not updated
+                idx = torch.logical_and(density[:,j,0] > 0.1, depth[:,0] < 0.01 )
+
                 depth[idx] = 1.0 - j / n_pts 
-            # print(depth.shape)
-            # Return
+            # scale the depth image to have more significant visual result
+            depth = depth / torch.max(depth)
+
             cur_out = {
                 'feature': feature,
                 'depth': depth,
