@@ -152,7 +152,7 @@ def render_images(
             ).detach().cpu()
         )
         all_images.append(image)
-        print(image.shape)
+        # print(image.shape)
 
         # TODO (1.5): Visualize depth
         depth = np.array(
@@ -407,7 +407,7 @@ def train_nerf(
             and epoch > 0
         ):
             with torch.no_grad():
-                test_images = render_images(
+                test_images, depth = render_images(
                     model, create_surround_cameras(4.0, n_poses=20, up=(0.0, 0.0, 1.0), focal_length=2.0),
                     cfg.data.image_size, file_prefix='nerf'
                 )
