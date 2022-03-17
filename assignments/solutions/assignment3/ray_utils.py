@@ -121,8 +121,17 @@ def get_random_pixels_from_image(n_pixels, image_size, camera):
     xy_grid = get_pixels_from_image(image_size, camera)
     
     # TODO (2.1): Random subsampling of pixel coordinates
-    pass
-
+    x_sampled = torch.rand(n_pixels)*2. -1.
+    y_sampled = torch.rand(n_pixels)*2. -1.
+    xy_grid_sub = torch.stack(
+        (
+            x_sampled,
+            y_sampled
+        ),
+        dim = 1
+    ).to(get_device())
+    # print(xy_grid_sub)
+    # print(xy_grid_sub.reshape(-1, 2)[:n_pixels])
     # Return
     return xy_grid_sub.reshape(-1, 2)[:n_pixels]
 

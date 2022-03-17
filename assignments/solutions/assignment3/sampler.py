@@ -37,7 +37,7 @@ class StratifiedRaysampler(torch.nn.Module):
 
         sample_points = z_vals * sample_points
         for i in range(self.n_pts_per_ray):
-            sample_points[:,i,:] += ray_bundle.origins
+            sample_points[:,i,:] = sample_points[:,i,:] + ray_bundle.origins
 
         return ray_bundle._replace(
             sample_points=sample_points,

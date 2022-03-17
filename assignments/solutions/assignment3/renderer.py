@@ -55,7 +55,7 @@ class VolumeRenderer(torch.nn.Module):
         multiplier = torch.exp(-(deltas * rays_density))
         T = torch.ones(n_rays, n_sample_per_ray,1).to(get_device())
         for i in range(1, n_sample_per_ray):
-            T[:,i,:] = T[:,i-1,:] * multiplier[:,i-1,:]
+            T[:,i,:] = T[:,i-1,:].clone() * multiplier[:,i-1,:]
 
         weights = T * (1-torch.exp(-rays_density*deltas))
         return weights
@@ -132,12 +132,11 @@ class VolumeRenderer(torch.nn.Module):
             # density: [n x m x 1]
             density = density.view(-1, n_pts, 1)
             depth = torch.zeros((density.shape[0], 1)).to(get_device())
-            for j in range(n_pts):
+            for j in range(50):
                 # find where density is larger than thershold and dpeth not updated
-                idx = torch.logical_and(density[:,j,0] > 0.1, depth[:,0] < 0.01 )
-
-                depth[idx] = 1.0 - j / n_pts 
-            # scale the depth image to have more significant visual result
+                idx = torch.logical_and(density[:,j,0] > 0.5, depth[:,0] < 0.01 )
+                depth[idx] = 1.0 - j / 50
+            
             depth = depth / torch.max(depth)
 
             cur_out = {

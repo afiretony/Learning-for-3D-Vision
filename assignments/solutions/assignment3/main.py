@@ -152,14 +152,15 @@ def render_images(
             ).detach().cpu()
         )
         all_images.append(image)
+        print(image.shape)
 
         # TODO (1.5): Visualize depth
         depth = np.array(
             out['depth'].view(
-                image_size[1], image_size[0], 1
+                image_size[1], image_size[0]
                 ).detach().cpu()
         )
-        depth = depth * np.ones((image_size[1], image_size[0], 3))
+        # depth = depth * np.ones((image_size[1], image_size[0], 3))
         
         all_depth.append(depth)
 
@@ -172,7 +173,7 @@ def render_images(
             )
             plt.imsave(
                 f'{file_prefix}_{cam_idx}_depth.png',
-                depth
+                depth, cmap = 'plasma'
             )
     
     return all_images, all_depth
@@ -244,7 +245,11 @@ def train(
             out = model(ray_bundle)
 
             # TODO (2.2): Calculate loss
-            loss = None
+            # print('gt', rgb_gt.shape)
+            predicted = out['feature']
+            # print('out', predicted.shape)
+            l2 = torch.nn.MSELoss()
+            loss = l2(predicted, rgb_gt)
 
             # Backprop
             optimizer.zero_grad()
@@ -264,7 +269,7 @@ def train(
         model, cameras, image_size,
         save=True, file_prefix='images/part_2_after_training'
     )
-    all_images = render_images(
+    all_images, all_depth = render_images(
         model, create_surround_cameras(3.0, n_poses=20), image_size, file_prefix='part_2'
     )
     imageio.mimsave('images/part_2.gif', [np.uint8(im * 255) for im in all_images])
