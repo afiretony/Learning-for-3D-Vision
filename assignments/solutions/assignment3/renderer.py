@@ -22,42 +22,20 @@ class VolumeRenderer(torch.nn.Module):
         rays_density: torch.Tensor,
         eps: float = 1e-10
     ):
-        # print('deltas:', deltas)
 
-        # # TODO (1.5): Compute transmittance using the equation described in the README
-        # n_rays, n_sample_per_ray = rays_density.shape[0], rays_density.shape[1]
-        # T = torch.zeros(n_rays, n_sample_per_ray).to(get_device())
-
-        # T[:,0] = 1.0 # first segment = 1
-        # for j in range(1, n_sample_per_ray):
-        #     T[:,j] = T[:, j-1] * torch.exp(-rays_density[:, j, 0] * deltas[:, j-1, 0])
-
-        # # TODO (1.5): Compute weight used for rendering from transmittance and density
-        # weights = T.reshape(-1,1) * (1.-torch.exp(-rays_density.reshape(-1,1)*deltas.reshape(-1,1)))
-        # weights = weights.reshape(n_rays, n_sample_per_ray)
-
-        # rays_density = torch.ones_like(rays_density) * 0.
-        # for i in range(30):
-        #     print(rays_density[i*1000])
-        # print(torch.sum(rays_density, dim = 0))
-
-        # T = torch.cumprod(
-        #     torch.cat(
-        #         (
-        #         torch.ones((deltas.shape[0], 1, deltas.shape[2])).to(get_device()),
-        #         torch.exp(-(deltas * rays_density))[:, 0:-1, :]
-        #         ),
-        #         dim = 1
-        #     ),
-        #     dim = 1
-        # )
+        # TODO (1.5): Compute transmittance using the equation described in the README
         n_rays, n_sample_per_ray = deltas.shape[0], deltas.shape[1]
-        multiplier = torch.exp(-(deltas * rays_density))
-        T = torch.ones(n_rays, n_sample_per_ray,1).to(get_device())
-        for i in range(1, n_sample_per_ray):
-            T[:,i,:] = T[:,i-1,:].clone() * multiplier[:,i-1,:]
 
+        multiplier = torch.exp(-(deltas * rays_density))
+        
+        T = torch.ones(n_rays, n_sample_per_ray,1).to(get_device())
+        
+        for i in range(1, n_sample_per_ray):
+            T[:,i,:] = T[:,i-1,:].clone() * multiplier[:,i-1,:] # clone avoids inplace error
+
+        # TODO (1.5): Compute weight used for rendering from transmittance and density
         weights = T * (1-torch.exp(-rays_density*deltas))
+        
         return weights
     
     def _aggregate(
@@ -65,19 +43,8 @@ class VolumeRenderer(torch.nn.Module):
         weights: torch.Tensor, 
         rays_feature: torch.Tensor
     ):
-        # # TODO (1.5): Aggregate (weighted sum of) features using weights
-        # n_rays, n_samples = weights.shape[0], weights.shape[1]
-        # # rays_feature = rays_feature.reshape(n_rays, n_samples, 3)
-        # plt.figure(figsize=(10, 10))
-        # image=rays_feature.reshape(1024, 2048, 3).detach().cpu().numpy()
-        # plt.imsave('feature.png',image)
-        # plt.axis("off")
-        # return
 
-        # feature = weights.reshape(-1,1) * rays_feature
-        # feature = feature.reshape(n_rays, n_samples, 3)
-        # feature = torch.sum(feature, dim = 1)
-        # print(weights.shape)
+        # TODO (1.5): Aggregate (weighted sum of) features using weights
         feature = torch.sum(weights * rays_feature, dim=1)
 
         return feature
@@ -105,8 +72,6 @@ class VolumeRenderer(torch.nn.Module):
             implicit_output = implicit_fn(cur_ray_bundle)
             density = implicit_output['density']
             feature = implicit_output['feature']
-            # print(density)
-            # print(feature.shape)
 
             # Compute length of each ray segment
             depth_values = cur_ray_bundle.sample_lengths[..., 0]

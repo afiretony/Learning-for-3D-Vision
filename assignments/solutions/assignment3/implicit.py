@@ -227,63 +227,43 @@ class NeuralRadianceField(torch.nn.Module):
 
         self.harmonic_embedding_xyz = HarmonicEmbedding(3, cfg.n_harmonic_functions_xyz)
         self.harmonic_embedding_dir = HarmonicEmbedding(3, cfg.n_harmonic_functions_dir)
+        self.cfg = cfg
 
         embedding_dim_xyz = self.harmonic_embedding_xyz.output_dim
         embedding_dim_dir = self.harmonic_embedding_dir.output_dim
-        print(self.harmonic_embedding_xyz)
-        print(self.harmonic_embedding_xyz)
-        # print(embedding_dim_dir)
-        # print(embedding_dim_xyz)
         
         hidden_dim = cfg.n_hidden_neurons_xyz
 
-        # Input layer (default: 39 + 15 -> 128)
-        self.layer1 = torch.nn.Linear(embedding_dim_xyz, hidden_dim)
-        # Layer 2 (default: 128 -> 128)
-        self.layer2 = torch.nn.Linear(hidden_dim, hidden_dim)
-        self.layer3 = torch.nn.Linear(hidden_dim, hidden_dim)
+        self.in_layer_xyz = torch.nn.Linear(embedding_dim_xyz, hidden_dim)
+        self.hidden = torch.nn.Linear(hidden_dim, hidden_dim)
         
         self.out_density = torch.nn.Linear(hidden_dim, 1)
         self.out_color = torch.nn.Linear(hidden_dim, 3)
 
-        # Layer 3_2 (default: 128 -> 1): Predicts a feature vector (used for color)
-        # self.layer3_2 = torch.nn.Linear(hidden_size, hidden_size)
-
-        # Layer 4 (default: 39 + 128 -> 128)
-        # self.layer4 = torch.nn.Linear(
-        #     self.viewdir_encoding_dims + hidden_size, hidden_size
-        # )
-        # Layer 5 (default: 128 -> 128)
-        # self.layer5 = torch.nn.Linear(hidden_size, hidden_size)
-        # # Layer 6 (default: 128 -> 3): Predicts RGB color
-        # self.layer6 = torch.nn.Linear(hidden_size, 3)
-
         # Short hand for torch.nn.functional.relu
         self.relu = torch.nn.functional.relu
-        self.sigmoid = torch.nn.functional.sigmoid
+        self.sigmoid = torch.sigmoid
 
-    def forward(self, x):
-            # x, view = x[..., : self.xyz_encoding_dims], x[..., self.xyz_encoding_dims :]
+    def forward(self, ray_bundle):
+        sample_points = ray_bundle.sample_points.view(-1, 3)
+        directions = ray_bundle.directions.view(-1, 3)
+        x = self.harmonic_embedding_xyz(sample_points)
 
-            x = self.relu(self.layer1(x))
-            x = self.relu(self.layer2(x))
-            x = self.relu(self.layer3(x))
-            density = self.relu(self.out_density(x))
-            color = self.sigmoid(self.out_color(x))
+        x = self.in_layer_xyz(x)
 
-            # sigma = self.layer3_1(x)
-            # feat = self.relu(self.layer3_2(x))
-            # x = torch.cat((feat, view), dim=-1)
-            # x = self.relu(self.layer4(x))
-            # x = self.relu(self.layer5(x))
-            # x = self.layer6(x)
-            return torch.cat((density, color), dim=-1)
-    # def forward(self, x):
-    #     x = self.relu(self.layer1(x))
-    #     x = self.relu(self.layer2(x))
-    #     x = self.layer3(x)
-    #     return x
+        for _ in range(self.cfg.n_layers_xyz-2):
+            x = self.relu(self.hidden(x))
 
+        # outputing density and color by seperate heads
+        density = self.relu(self.out_density(x))
+        color = self.sigmoid(self.out_color(x))
+
+        out = {
+            'density': density,
+            'feature': color,
+        }
+
+        return out
 
 volume_dict = {
     'sdf_volume': SDFVolume,
