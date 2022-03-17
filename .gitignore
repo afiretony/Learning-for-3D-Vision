@@ -6,3 +6,5 @@
 **/r2n2_shapenet_dataset
 **/*.pth
 **/*.zip
+**/data/
+**/lego.png
