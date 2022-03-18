@@ -255,9 +255,9 @@ class NeuralRadianceField(torch.nn.Module):
         directions = ray_bundle.directions.view(-1, 3)
         embedded_xyz = self.harmonic_embedding_xyz(sample_points)
 
-        if self.cgf.use_dir:
+        if self.cfg.use_dir:
             embedded_dir = self.harmonic_embedding_dir(sample_points)
-            x = torch.stack(
+            x = torch.cat(
                 (
                     embedded_xyz, 
                     embedded_dir
