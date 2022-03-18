@@ -23,6 +23,10 @@ Point samples:
 
 ![sample_points](sample_points.png)
 
+VIsualization of my cube:
+
+![part_1](images/part_1.gif)
+
 Visualization of my depth:
 
 ![part_1_depth](images/part_1_depth.gif)
