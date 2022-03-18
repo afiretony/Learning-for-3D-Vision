@@ -72,6 +72,8 @@ class VolumeRenderer(torch.nn.Module):
             implicit_output = implicit_fn(cur_ray_bundle)
             density = implicit_output['density']
             feature = implicit_output['feature']
+            # print('input feature size:', feature.shape)
+            # print('input density size:', density.shape)
 
             # Compute length of each ray segment
             depth_values = cur_ray_bundle.sample_lengths[..., 0]
@@ -99,10 +101,14 @@ class VolumeRenderer(torch.nn.Module):
             depth = torch.zeros((density.shape[0], 1)).to(get_device())
             for j in range(50):
                 # find where density is larger than thershold and dpeth not updated
-                idx = torch.logical_and(density[:,j,0] > 0.5, depth[:,0] < 0.01 )
+                idx = torch.logical_and(density[:,j,0] > 0.1, depth[:,0] < 0.01 )
                 depth[idx] = 1.0 - j / 50
             
             depth = depth / torch.max(depth)
+
+
+            # print('output feature size:', feature.shape)
+            # print('output weight size:', weights.shape)
 
             cur_out = {
                 'feature': feature,

@@ -143,7 +143,6 @@ def render_images(
         # TODO (1.5): Implement rendering in renderer.py
         
         out = model(ray_bundle)
-        # print(ray_bundle.sample_points[0,:,:])
 
         # Return rendered features (colors)
         image = np.array(
@@ -152,7 +151,6 @@ def render_images(
             ).detach().cpu()
         )
         all_images.append(image)
-        # print(image.shape)
 
         # TODO (1.5): Visualize depth
         depth = np.array(
@@ -160,7 +158,6 @@ def render_images(
                 image_size[1], image_size[0]
                 ).detach().cpu()
         )
-        # depth = depth * np.ones((image_size[1], image_size[0], 3))
         
         all_depth.append(depth)
 

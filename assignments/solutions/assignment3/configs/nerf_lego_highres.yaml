@@ -12,7 +12,7 @@ training:
 
   checkpoint_path: ./checkpoints_res
   checkpoint_interval: 5
-  resume: False
+  resume: True
 
   render_interval: 10
 
@@ -23,7 +23,7 @@ data:
 renderer:
   type: volume
   # chunk_size: 32768
-  chunk_size: 3600
+  chunk_size: 4096
   white_background: True
 
 sampler:

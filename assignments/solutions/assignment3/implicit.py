@@ -229,14 +229,20 @@ class NeuralRadianceField(torch.nn.Module):
         self.harmonic_embedding_dir = HarmonicEmbedding(3, cfg.n_harmonic_functions_dir)
         self.cfg = cfg
 
-        embedding_dim_xyz = self.harmonic_embedding_xyz.output_dim
         embedding_dim_dir = self.harmonic_embedding_dir.output_dim
-        
+        embedding_dim_xyz = self.harmonic_embedding_xyz.output_dim
+
+        if cfg.use_dir: # for 4.1
+            embedding_dim = embedding_dim_dir + embedding_dim_xyz
+        else:
+            embedding_dim = embedding_dim_xyz
+
         hidden_dim = cfg.n_hidden_neurons_xyz
 
-        self.in_layer_xyz = torch.nn.Linear(embedding_dim_xyz, hidden_dim)
+        self.in_layer_xyz = torch.nn.Linear(embedding_dim, hidden_dim)
         self.hidden = torch.nn.Linear(hidden_dim, hidden_dim)
         
+        # seperate output tail
         self.out_density = torch.nn.Linear(hidden_dim, 1)
         self.out_color = torch.nn.Linear(hidden_dim, 3)
 
@@ -247,14 +253,26 @@ class NeuralRadianceField(torch.nn.Module):
     def forward(self, ray_bundle):
         sample_points = ray_bundle.sample_points.view(-1, 3)
         directions = ray_bundle.directions.view(-1, 3)
-        x = self.harmonic_embedding_xyz(sample_points)
+        embedded_xyz = self.harmonic_embedding_xyz(sample_points)
+
+        if self.cgf.use_dir:
+            embedded_dir = self.harmonic_embedding_dir(sample_points)
+            x = torch.stack(
+                (
+                    embedded_xyz, 
+                    embedded_dir
+                    ), 
+                dim = -1
+                )
+        else:
+            x = embedded_xyz
 
         x = self.in_layer_xyz(x)
 
         for _ in range(self.cfg.n_layers_xyz-2):
             x = self.relu(self.hidden(x))
 
-        # outputing density and color by seperate heads
+        # outputing density and color by seperate heads / different activation layer
         density = self.relu(self.out_density(x))
         color = self.sigmoid(self.out_color(x))
 
