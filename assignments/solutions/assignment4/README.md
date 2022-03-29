@@ -24,6 +24,14 @@ python -m a4.main --config-name=torus
 This should save `part_1.gif` in the `images' folder. Please include this in your submission along with a short writeup describing your implementation.
 
 ![Torus](images/part_1.gif)
+To implementation sphere tracing, I used iterative method for the ray marching,
+```
+While(f(p)>epsilon):
+    t = t + f(p)
+    p = origin + t*directions
+```
+The reason why we never cross the surface is because the distance between point p to hit surface is always larger than the distance between point p to clostest surface, unless the ray happen to be normal of hitting point surface which is very rare.
+To compute the mask, I used the fact that the ray always proceed and will go to distance larger than our `far` threshold ultimately if it does not hit the surface. So once the marched distance `t` larger than this threshold, I consider it as False in the mask.
 
 ##  2. Optimizing a Neural SDF (30pts)
 

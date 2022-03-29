@@ -39,14 +39,27 @@ class SphereTracingRenderer(torch.nn.Module):
         #   in order to compute intersection points of rays with the implicit surface
         # 2) Maintain a mask with the same batch dimension as the ray origins,
         #   indicating which points hit the surface, and which do not
-        points = origins
+        # points = origins + directions * self.near
         eps = 1e-5
-        f_p = implicit_fn.get_distance(points)
-        print(f_p)
-        while f_p > eps:
-            t = t + f_p
-            points = points + t * directions
+        t = torch.ones_like(origins[:,0].unsqueeze(-1)) * self.near
+        points = origins + t * directions
+
+        mask = torch.ones_like(t) > 0
+        iteration = 0
+        while True:
+            iteration+=1
             f_p = implicit_fn.get_distance(points)
+            t = t + f_p
+            points = origins + t * directions
+            mask[t > self.far] = False
+            valid = f_p[mask] > eps
+            
+            if valid.sum() == 0:
+                break
+            
+            if iteration == self.max_iters:
+                print('break with maximum iteration!')
+                break
 
         return points, mask
         
