@@ -222,8 +222,8 @@ def train_points(
 
             # Get distances and enforce point cloud loss
             distances, gradients = model.implicit_fn.get_distance_and_gradient(points)
-            loss = None # TODO (Q2): Point cloud SDF loss on distances
-            point_loss = loss
+            loss = torch.linalg.norm(distances, dim=-1).mean() # TODO (Q2): Point cloud SDF loss on distances
+            point_loss = loss.clone().detach()
 
             # Sample random points in bounding box
             eikonal_points = get_random_points(

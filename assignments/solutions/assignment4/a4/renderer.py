@@ -108,10 +108,24 @@ class SphereTracingRenderer(torch.nn.Module):
 
         return out
 
+def get_device():
+    """
+    Checks if GPU is available and returns device accordingly.
+    """
+    if torch.cuda.is_available():
+        device = torch.device("cuda:0")
+    else:
+        device = torch.device("cpu")
+    return device
 
 def sdf_to_density(signed_distance, alpha, beta):
     # TODO (Q3): Convert signed distance to density with alpha, beta parameters
-    pass
+    s = - signed_distance
+    PHI = torch.zeros_like(signed_distance)
+    PHI[s<=0] = (0.5 * torch.exp(s / beta))[s<=0]
+    PHI[s>0] = (1 - 0.5 * torch.exp( - s / beta))[s>0]
+    sigma = alpha * PHI
+    return sigma
 
 class VolumeSDFRenderer(torch.nn.Module):
     def __init__(
@@ -132,7 +146,20 @@ class VolumeSDFRenderer(torch.nn.Module):
         eps: float = 1e-10
     ):
         # TODO (Q3): Copy code from VolumeRenderer._compute_weights
-        pass
+        # TODO (1.5): Compute transmittance using the equation described in the README
+        n_rays, n_sample_per_ray = deltas.shape[0], deltas.shape[1]
+
+        multiplier = torch.exp(-(deltas * rays_density))
+        
+        T = torch.ones(n_rays, n_sample_per_ray,1).to(get_device())
+        
+        for i in range(1, n_sample_per_ray):
+            T[:,i,:] = T[:,i-1,:].clone() * multiplier[:,i-1,:] # clone avoids inplace error
+
+        # TODO (1.5): Compute weight used for rendering from transmittance and density
+        weights = T * (1-torch.exp(-rays_density*deltas))
+        
+        return weights
     
     def _aggregate(
         self,
@@ -140,7 +167,8 @@ class VolumeSDFRenderer(torch.nn.Module):
         rays_color: torch.Tensor
     ):
         # TODO (Q3): Copy code from VolumeRenderer._aggregate
-        pass
+        feature = torch.sum(weights * rays_color, dim=1)
+        return feature
 
     def forward(
         self,
@@ -163,7 +191,7 @@ class VolumeSDFRenderer(torch.nn.Module):
             # Call implicit function with sample points
             distance, color = implicit_fn.get_distance_color(cur_ray_bundle.sample_points)
             color = color.view(-1, n_pts, 3)
-            density = None # TODO (Q3): convert SDF to density
+            density = sdf_to_density(distance, self.alpha, self.beta) # TODO (Q3): convert SDF to density
 
             # Compute length of each ray segment
             depth_values = cur_ray_bundle.sample_lengths[..., 0]
