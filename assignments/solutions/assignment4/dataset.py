@@ -121,7 +121,7 @@ def get_nerf_datasets(
     ]
 
     train_idx, val_idx, test_idx = train_data["split"]
-    train_idx = torch.arange(0, 99, step=5)
+    # train_idx = torch.arange(0, 99, step=5)
     # train_idx = torch.randperm(100)[:30]
 
     print(train_idx)

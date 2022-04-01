@@ -125,8 +125,14 @@ def sdf_to_density(signed_distance, alpha, beta):
     PHI[s<=0] = (0.5 * torch.exp(s / beta))[s<=0]
     PHI[s>0] = (1 - 0.5 * torch.exp( - s / beta))[s>0]
     sigma = alpha * PHI
-    # print(sigma)
     return sigma
+
+def sdf_to_density_naive(signed_distance, scale):
+    # logistic density distribution
+    PHI = scale * torch.exp(-scale * signed_distance) / torch.square(1.0 + torch.exp(-scale* signed_distance))
+    return PHI
+
+
 
 class VolumeSDFRenderer(torch.nn.Module):
     def __init__(
@@ -193,7 +199,7 @@ class VolumeSDFRenderer(torch.nn.Module):
             distance, color = implicit_fn.get_distance_color(cur_ray_bundle.sample_points)
             color = color.view(-1, n_pts, 3)
             density = sdf_to_density(distance, self.alpha, self.beta) # TODO (Q3): convert SDF to density
-
+            density = sdf_to_density_naive(distance, 150.0)
             # Compute length of each ray segment
             depth_values = cur_ray_bundle.sample_lengths[..., 0]
             deltas = torch.cat(
