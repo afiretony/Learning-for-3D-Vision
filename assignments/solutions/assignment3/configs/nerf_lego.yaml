@@ -12,7 +12,7 @@ training:
 
   checkpoint_path: ./checkpoints_dir
   checkpoint_interval: 5
-  resume: True
+  resume: False
 
   render_interval: 1
 
@@ -35,7 +35,7 @@ sampler:
 implicit_function:
   type: nerf
 
-  use_dir: True
+  use_dir: False
   n_harmonic_functions_xyz: 6
   n_harmonic_functions_dir: 2
   n_hidden_neurons_xyz: 128

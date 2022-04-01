@@ -35,7 +35,7 @@ training:
   render_interval: 500
 
   inter_weight: 0.1
-  eikonal_weight: 0.1
+  eikonal_weight: 0.02
   bounds: [[-4, -4, -4], [4, 4, 4]]
 
 implicit_function:

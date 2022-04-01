@@ -125,6 +125,7 @@ def sdf_to_density(signed_distance, alpha, beta):
     PHI[s<=0] = (0.5 * torch.exp(s / beta))[s<=0]
     PHI[s>0] = (1 - 0.5 * torch.exp( - s / beta))[s>0]
     sigma = alpha * PHI
+    # print(sigma)
     return sigma
 
 class VolumeSDFRenderer(torch.nn.Module):

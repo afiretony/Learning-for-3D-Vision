@@ -399,7 +399,7 @@ def train_images(
             try:
                 test_images = render_geometry(
                     model, create_surround_cameras(4.0, n_poses=20, up=(0.0, 0.0, 1.0), focal_length=2.0),
-                    cfg.data.image_size, file_prefix='volsdf_geometry'
+                    cfg.data.image_size, file_prefix='volsdf_geometry', thresh=0.002
                 )
                 imageio.mimsave('images/part_3_geometry.gif', [np.uint8(im * 255) for im in test_images])
             except Exception as e:

@@ -246,6 +246,10 @@ class NeuralSurface(torch.nn.Module):
         self.relu = torch.nn.functional.relu
 
         # TODO (Q3): Implement Neural Surface MLP to output per-point color
+        self.harmonic_embedding_color = HarmonicEmbedding(3, cfg.n_harmonic_functions_xyz)
+        embedding_dim_color = self.harmonic_embedding_color.output_dim
+
+        self.in_layer_color = torch.nn.Linear(embedding_dim_distance, cfg.n_hidden_neurons_color)
         self.n_layers_color = cfg.n_layers_color # 2
         self.n_hidden_neurons_color = cfg.n_hidden_neurons_color # 128
         self.hidden_color = torch.nn.Linear(cfg.n_hidden_neurons_color, cfg.n_hidden_neurons_color) # hidden layer for color
@@ -273,19 +277,24 @@ class NeuralSurface(torch.nn.Module):
         
         return distance
     
-    # def get_color(
-    #     self,
-    #     points
-    # ):
-    #     '''
-    #     TODO: Q3
-    #     Output:
-    #         distance: N X 3 Tensor, where N is number of input points
-    #     '''
-    #     points = points.view(-1, 3)
-    #     pass
+    def get_color(
+        self,
+        points
+    ):
+        '''
+        TODO: Q3
+        Output:
+            distance: N X 3 Tensor, where N is number of input points
+        '''
+        points = points.view(-1, 3)
+        embedded_color = self.harmonic_embedding_color(points)
+        x = self.in_layer_color(embedded_color)
 
-        # I implemented it by sharing computation between layers
+        for _ in range(self.n_layers_color):
+            x = self.relu(self.hidden_color(x))
+
+        color = self.sigmoid(self.out_color(x)).view(-1,1)
+        return color
 
         
     
@@ -300,22 +309,9 @@ class NeuralSurface(torch.nn.Module):
         You may just implement this by independent calls to get_distance, get_color
             but, depending on your MLP implementation, it maybe more efficient to share some computation
         '''
-        points = points.view(-1, 3)
-        embedded_distance = self.harmonic_embedding_distance(points)
-        x = self.in_layer_distance(embedded_distance)
-
-        for _ in range(self.n_layers_distance-2):
-            x = self.relu(self.hidden_distance(x))
-        
-        distance = self.out_distance(x).view(-1,1)
-        
-        # color layer with additional several layers
-        # for _ in range(self.n_hidden_neurons_color):
-        #     x = self.relu(self.hidden_color(x))
-        
-        colors = self.sigmoid(self.out_color(x)).view(-1, 3)
-
-        return distance, colors
+        distances = self.get_distance(points)
+        colors = self.get_color(points)
+        return distances, colors
         
         
     def forward(self, points):
