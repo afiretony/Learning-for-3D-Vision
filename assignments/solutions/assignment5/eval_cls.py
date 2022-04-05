@@ -34,7 +34,7 @@ if __name__ == '__main__':
     create_dir(args.output_dir)
 
     # ------ TO DO: Initialize Model for Classification Task ------
-    model = 
+    model = cls_model()
     
     # Load Model Checkpoint
     model_path = './checkpoints/cls/{}.pt'.format(args.load_checkpoint)
@@ -51,7 +51,7 @@ if __name__ == '__main__':
     test_label = torch.from_numpy(np.load(args.test_label))
 
     # ------ TO DO: Make Prediction ------
-    pred_label = 
+    pred_label = model(test_data)
 
     # Compute Accuracy
     test_accuracy = pred_label.eq(test_label.data).cpu().sum().item() / (test_label.size()[0])
