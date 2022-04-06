@@ -22,9 +22,6 @@ def train(train_dataloader, model, opt, epoch, args, writer):
 
         # ------ TO DO: Forward Pass ------
         predictions = model(point_clouds)
-        # print('---------forward')
-        # print(predictions)
-        # print(labels)
 
         if (args.task == "seg"):
             labels = labels.reshape([-1])
@@ -59,10 +56,10 @@ def test(test_dataloader, model, epoch, args, writer):
 
             # ------ TO DO: Make Predictions ------
             with torch.no_grad():
-                pred_labels = model(point_clouds)
-                print('predicted:', pred_labels)
-                
-                print('GT', labels.data)
+                pred_results = model(point_clouds)
+                pred_labels = torch.argmax(pred_results, -1, keepdim=False)
+                # print('predicted:', pred_labels)
+                # print('GT', labels.data)
                 pred_labels = pred_labels.T
 
             correct_obj += pred_labels.eq(labels.data).cpu().sum().item()
@@ -83,7 +80,8 @@ def test(test_dataloader, model, epoch, args, writer):
 
             # ------ TO DO: Make Predictions ------
             with torch.no_grad():     
-                pred_labels = model(point_clouds)
+                pred_results = model(point_clouds)
+                pred_labels = torch.argmax(pred_results, -1, keepdim=False)
 
             correct_point += pred_labels.eq(labels.data).cpu().sum().item()
             num_point += labels.view([-1,1]).size()[0]
@@ -169,9 +167,9 @@ def create_parser():
 
     # Training hyper-parameters
     parser.add_argument('--num_epochs', type=int, default=250)
-    parser.add_argument('--batch_size', type=int, default=12, help='The number of images in a batch.')
+    parser.add_argument('--batch_size', type=int, default=32, help='The number of images in a batch.')
     parser.add_argument('--num_workers', type=int, default=8, help='The number of threads to use for the DataLoader.')
-    parser.add_argument('--lr', type=float, default=0.001, help='The learning rate (default 0.001)')
+    parser.add_argument('--lr', type=float, default=0.0001, help='The learning rate (default 0.001)')
 
     parser.add_argument('--exp_name', type=str, default="exp", help='The name of the experiment')
 
