@@ -22,7 +22,7 @@ def train(train_dataloader, model, opt, epoch, args, writer):
 
         # ------ TO DO: Forward Pass ------
         predictions = model(point_clouds)
-
+        
         if (args.task == "seg"):
             labels = labels.reshape([-1])
             predictions = predictions.reshape([-1, args.num_seg_class])

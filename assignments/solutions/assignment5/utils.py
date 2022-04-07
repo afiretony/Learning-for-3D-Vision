@@ -9,6 +9,11 @@ from pytorch3d.renderer import (
 )
 import imageio
 
+from PIL import Image, ImageDraw
+import numpy as np
+
+
+
 def save_checkpoint(epoch, model, args, best=False):
     if best:
         path = os.path.join(args.checkpoint_dir, 'best_model.pt')
@@ -85,3 +90,43 @@ def viz_seg (verts, labels, path, device):
 
     imageio.mimsave(path, rend, fps=15)
 
+
+
+def render_pcd(points, output, device, pred_class, gt_class):
+    '''
+    render pcd and save a gif
+    '''
+    image_size=256
+    num_frames = 50
+    duration = 3
+    output_file = 'output/'+output+'.gif'
+    class_map = {
+        0: 'chair',
+        1: 'vase',
+        2: 'lamp'
+    }
+    color = (points - points.min()) / (points.max() - points.min())
+
+    point_cloud = pytorch3d.structures.Pointclouds(
+        points=[points], features=[color],
+    ).to(device)
+
+    renders = []
+    angles = np.linspace(0,180,num_frames)
+    for i, angle in enumerate(angles):
+        R, T = pytorch3d.renderer.look_at_view_transform(dist=5.0, elev=2, azim=angle)
+        cameras = pytorch3d.renderer.FoVPerspectiveCameras(R=R, T=T, device=device)
+        renderer = get_points_renderer(image_size=image_size, device=device)
+        rend = renderer(point_cloud, cameras=cameras)
+        rend = rend.cpu().numpy()[0, ..., :3]  # (B, H, W, 4) -> (H, W, 3)
+        renders.append(rend)
+
+    images = []
+    for i, r in enumerate(renders):
+        image = Image.fromarray((r * 255).astype(np.uint8))
+        draw = ImageDraw.Draw(image)
+        draw.text((20, 20), f"Ground truth: {class_map[gt_class]}, Predicted: {class_map[pred_class]}", fill=(0, 0, 255))
+        images.append(np.array(image))
+    imageio.mimsave(output_file, images, fps=(num_frames / duration))
+
+# if __name__ == "__main__":
