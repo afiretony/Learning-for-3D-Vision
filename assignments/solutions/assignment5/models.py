@@ -83,10 +83,11 @@ class seg_model(nn.Module):
         # max pool
         global_embedding, _ = torch.max(out, dim=-1) # global feature, B x 1024
 
-        N = local_embedding.shape[1] # num of points per object
+        N = local_embedding.shape[-1] # num of points per object
         B = global_embedding.shape[0]
+        # print('--------')
         combined = torch.cat(
-            (local_embedding.transpose(1, 2), # B x N x 64
+            (torch.transpose(local_embedding, 1, 2), # B x N x 64
             global_embedding.repeat(1, N).view(B, N, 1024)), # B x N x 1024
             dim=-1
         ).transpose(1, 2) # B x 1088 x N

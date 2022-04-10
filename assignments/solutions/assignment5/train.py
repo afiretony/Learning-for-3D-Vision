@@ -26,6 +26,8 @@ def train(train_dataloader, model, opt, epoch, args, writer):
         if (args.task == "seg"):
             labels = labels.reshape([-1])
             predictions = predictions.reshape([-1, args.num_seg_class])
+            # print('predicted:', predictions)
+            # print('GT', labels)
             
         # Compute Loss
         criterion = torch.nn.CrossEntropyLoss()
@@ -169,7 +171,7 @@ def create_parser():
     parser.add_argument('--num_epochs', type=int, default=250)
     parser.add_argument('--batch_size', type=int, default=32, help='The number of images in a batch.')
     parser.add_argument('--num_workers', type=int, default=8, help='The number of threads to use for the DataLoader.')
-    parser.add_argument('--lr', type=float, default=0.0001, help='The learning rate (default 0.001)')
+    parser.add_argument('--lr', type=float, default=1e-5, help='The learning rate (default 0.001)')
 
     parser.add_argument('--exp_name', type=str, default="exp", help='The name of the experiment')
 
