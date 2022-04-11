@@ -7,9 +7,9 @@ In this assignment, I implemented a PointNet based architecture for classificati
 <!-- - visualize a few random test point clouds and mention the predicted classes for each. Also visualize at least 1 failure prediction for each class (chair, vase and lamp),  and provide interpretation in a few sentences.   -->
 
 - successful predictions:
-![](/output/q1_success_932.gif)
-![](/output/q1_success_0.gif)
-![](/output/q1_success_489.gif)
+![](output/q1_success_932.gif)
+![](output/q1_success_0.gif)
+![](output/q1_success_489.gif)
 
 
 - failed predictions:
@@ -37,19 +37,18 @@ left: ground truth; right: predicted.
 ![](output/gt_exp_500.gif)![](output/pred_exp_500.gif)
 
 ## Q3. Robustness Analysis
-
-1. You can rotate the input point clouds by certain degrees and report how much the accuracy falls
-2. You can input a different number of points points per object (modify `--num_points` when evaluating models in `eval_cls.py` and `eval_seg.py`)
-
-Feel free to try other ways of probing the robustness. Each experiment is worth 10 points.
-
-Deliverables: On your website, for each experiment
-
-- describe your procedure 
-- for each task, report test accuracy of you best model, in comparison with your results from Q1 & Q2
-
 ### Testing of model robustness with various number of points
  - procedure: test with different number of sampled points when evaluating.
+    - visualization:
+    1000 pts:
+    ![](output/q1_success_1000_17.gif)
+    100 pts:
+    ![](output/q1_success_100_17.gif)
+    10 pts:
+    ![](output/q1_success_10_17.gif)
+    1 pt:
+    ![](output/q1_success_1_17.gif)
+
  - results:
     - classification
 
@@ -86,6 +85,7 @@ Visualization of noise added:
 - results
     - Classification:
         | sigma | accuracy |
+        |---|---|
         | 0.0 | 95.2780%|
         | 0.01 | 95.2781%|
         | 0.05 | 93.9139%|
@@ -95,6 +95,7 @@ Visualization of noise added:
 
     - Segmentation:
         | sigma | accuracy |
+        |---|---|
         | 0.0 | 89.5322%|
         | 0.01 | 87.9162%|
         | 0.05 | 81.4656%|
