@@ -52,13 +52,16 @@ if __name__ == '__main__':
     ind = np.random.choice(10000, args.num_points, replace=False)
     test_data = torch.from_numpy((np.load(args.test_data))[:,ind,:])
     test_label = torch.from_numpy((np.load(args.test_label))[:,ind])
-
+    # add noise
+    sigma = 1
+    test_data += torch.normal(mean=0, std = sigma * torch.ones_like(test_data))
+    
     # ------ TO DO: Make Prediction ------
     # with torch.no_grad():
-    batch_size = 1
+    batch_size = 16
     num_batches = test_data.shape[0] // batch_size
     print('---------------------')
-    print(num_batches)
+    # print(num_batches)
 
     correct = 0
     pred_labels = torch.zeros_like(test_label)
@@ -75,12 +78,11 @@ if __name__ == '__main__':
     print ("test accuracy: {}".format(test_accuracy))
 
     # Visualize Segmentation Result (Pred VS Ground Truth)
-    # print(test_label[args.i][:50])
-    # print(pred_labels[args.i][:50])
-    for ii in range(10):
-        i = ii * 50
-        viz_seg(test_data[i], test_label[i], "{}/gt_{}_{}.gif".format(args.output_dir, args.exp_name, i), args.device)
-        viz_seg(test_data[i], pred_labels[i], "{}/pred_{}_{}.gif".format(args.output_dir, args.exp_name, i), args.device)
+
+    # for ii in range(10):
+    #     i = ii * 50
+    #     viz_seg(test_data[i], test_label[i], "{}/gt_{}_{}.gif".format(args.output_dir, args.exp_name, i), args.device)
+    #     viz_seg(test_data[i], pred_labels[i], "{}/pred_{}_{}.gif".format(args.output_dir, args.exp_name, i), args.device)
 
     # viz_seg(test_data[args.i], test_label[args.i], "{}/gt_{}_{}.gif".format(args.output_dir, args.exp_name, args.i), args.device)
     # viz_seg(test_data[args.i], pred_labels[args.i], "{}/pred_{}_{}.gif".format(args.output_dir, args.exp_name, args.i), args.device)

@@ -1,43 +1,43 @@
  ## Overview
-In this assignment, you will implement a PointNet based architecture for classification and segmentation with point clouds (you don't need to worry about the tranformation blocks). Q1 and Q2 focus on implementing, training and testing models. Q3 asks you to quantitatively analyze model robustness. Q4 (extra point) involves locality. 
+In this assignment, I implemented a PointNet based architecture for classification and segmentation with point clouds.
 
-`models.py` is where you will define model structures. `train.py` loads data, trains models, logs trajectories and saves checkpoints. `eval_cls.py` and `eval_seg.py` contain script to evaluate model accuracy and visualize segmentation result. Feel free to modify any file as needed.
+## Q1. Classification Model
+- test accuracy of my best model: 95.278%
 
-## Data Preparation
-Download zip file (~2GB) from https://drive.google.com/file/d/1wXOgwM_rrEYJfelzuuCkRfMmR0J7vLq_/view?usp=sharing. Put the unzipped `data` folder under root directory. There are two folders (`cls` and `seg`) corresponding to two tasks, each of which contains `.npy` files for training and testing.
+<!-- - visualize a few random test point clouds and mention the predicted classes for each. Also visualize at least 1 failure prediction for each class (chair, vase and lamp),  and provide interpretation in a few sentences.   -->
 
-## Q1. Classification Model (40 points)
-Implement the classification model in `models.py`.
+- successful predictions:
+![](/output/q1_success_932.gif)
+![](/output/q1_success_0.gif)
+![](/output/q1_success_489.gif)
 
-- Intput: points clouds from across 3 classes (chairs, vases and lamps objects)
 
-- Output: propapibility distribution indicating predicted classification (Dimension: Batch * Number of Classes)
+- failed predictions:
+![](output/q1_fail_406.gif)
+![](output/q1_fail_658.gif)
+![](output/q1_fail_619.gif)
 
-Complete model initialization and prediction in `train.py` and `eval_cls.py`. Run `python train.py --task cls` to train the model, and `python eva_cls.py` for evaluation. Check out the arguments and feel free to modify them as you want.
+The classification for these three classes generally yield good results. Among all failed predictions in test dataset, 46% of samples are falsely predicted as vase and 54% as lamp. However, none of them are falsely predicted as chair. This could be resulted from similar geometry shared by lamp and vase, as they are both round and sometimes hard to differentiate without texture.
 
-Deliverables: On your website, 
-
-- report the test accuracy of you best model.
-
-- visualize a few random test point clouds and mention the predicted classes for each. Also visualize at least 1 failure prediction for each class (chair, vase and lamp),  and provide interpretation in a few sentences.  
-
-## Q2. Segmentation Model (40 points) 
-Implement the segmentation model in `models.py`.  
-
-- Input: points of chair objects (6 semantic segmentation classes) 
-
-- Output: segmentation of points (Dimension: Batch * Number of Points per Object * Number of Segmentation Classes)
-
-Complete model initialization and prediction in `train.py` and `eval_seg.py`. Run `python train.py --task seg` to train the model. Running `python eval_seg.py` will save two gif's, one for ground truth and the other for model prediction. Check out the arguments and feel free to modify them as you want. In particular, you may want to specify `--i` and `--load_checkpoint` arguments in `eval_seg.py` to use your desired model checkpoint on a particular object.
-
-Deliverables: On your website 
-
-- report the test accuracy of you best model
+## Q2. Segmentation Model
+- test accuracy of my best model: 89.5322%
 
 - visualize segmentation results of at least 5 objects (including 2 bad predictions) with corresponding ground truth, report the prediction accuracy for each object, and provide interpretation in a few sentences.
-  
-## Q3. Robustness Analysis (20 points) 
-Conduct 2 experiments to analyze the robustness of your learned model. Some possible suggestions are:
+- successful cases:
+
+left: ground truth; right: predicted.
+
+![](output/gt_exp_0.gif)![](output/pred_exp_0.gif)
+![](output/gt_exp_50.gif)![](output/pred_exp_50.gif)
+![](output/gt_exp_100.gif)![](output/pred_exp_100.gif)
+![](output/gt_exp_300.gif)![](output/pred_exp_300.gif)
+
+- failed cases:
+![](output/gt_exp_10.gif)![](output/pred_exp_10.gif)
+![](output/gt_exp_500.gif)![](output/pred_exp_500.gif)
+
+## Q3. Robustness Analysis
+
 1. You can rotate the input point clouds by certain degrees and report how much the accuracy falls
 2. You can input a different number of points points per object (modify `--num_points` when evaluating models in `eval_cls.py` and `eval_seg.py`)
 
@@ -47,6 +47,62 @@ Deliverables: On your website, for each experiment
 
 - describe your procedure 
 - for each task, report test accuracy of you best model, in comparison with your results from Q1 & Q2
+
+### Testing of model robustness with various number of points
+ - procedure: test with different number of sampled points when evaluating.
+ - results:
+    - classification
+
+        |number of points | accuray |
+        |---|---|
+        |10000| 95.2780%|
+        |1000| 84.8899%|
+        |100| 83.9454%|
+        |10| 64.4281%|
+        |1| 28.4365%|
+
+    - segmentation
+
+        |number of points | accuray |
+        |---|---|
+        |10000| 89.5322%|
+        |1000| 88.4906%|
+        |100| 73.6709%|
+        |10 |45.8184%|
+        |1 |32.0907%|
+
+### Testing of model robustness with noise
+- procedure: adding gaussian noise with zero mean and different standard deviation $\sigma$ to test data
+```
+torch.normal(mean=0, std = 0.01 * torch.ones_like(test_data))
+```
+
+Visualization of noise added:
+![](output/q1_noise_0.01.gif)
+![](output/q1_noise_0.05.gif)
+![](output/q1_noise_0.1.gif)
+![](output/q1_noise_0.5.gif)
+![](output/q1_noise_1.gif)
+- results
+    - Classification:
+        | sigma | accuracy |
+        | 0.0 | 95.2780%|
+        | 0.01 | 95.2781%|
+        | 0.05 | 93.9139%|
+        | 0.1 | 90.2413%|
+        | 0.5 | 69.1501%|
+        | 1.0 | 55.2991%|
+
+    - Segmentation:
+        | sigma | accuracy |
+        | 0.0 | 89.5322%|
+        | 0.01 | 87.9162%|
+        | 0.05 | 81.4656%|
+        | 0.1 | 67.7958%|
+        | 0.5 | 41.8120%|
+        | 1.0 | 37.8610%|
+
+
 
 ## Q4. Bonus Question - Locality (20 points)
 Incorporate certain kind of locality as covered in the lecture (e.g. implement PointNet++ or DGCNN, etc).
