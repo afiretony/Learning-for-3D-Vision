@@ -4,11 +4,9 @@ In this assignment, I implemented a PointNet based architecture for classificati
 ## Q1. Classification Model
 - test accuracy of my best model: 95.278%
 
-<!-- - visualize a few random test point clouds and mention the predicted classes for each. Also visualize at least 1 failure prediction for each class (chair, vase and lamp),  and provide interpretation in a few sentences.   -->
-
 - successful predictions:
 ![](output/q1_success_932.gif)
-![](output/q1_success_0.gif)
+![](output/q1_success_189.gif)
 ![](output/q1_success_489.gif)
 
 
@@ -17,7 +15,10 @@ In this assignment, I implemented a PointNet based architecture for classificati
 ![](output/q1_fail_658.gif)
 ![](output/q1_fail_619.gif)
 
-The classification for these three classes generally yield good results. Among all failed predictions in test dataset, 46% of samples are falsely predicted as vase and 54% as lamp. However, none of them are falsely predicted as chair. This could be resulted from similar geometry shared by lamp and vase, as they are both round and sometimes hard to differentiate without texture.
+Confusion matrix:
+![](output/confusion_m.png)
+
+The classification for these three classes generally yield good results. We can interperate from confusion matrix that vase and lamp are easy to get false prediction while chair generally predicts well. This could be resulted from similar geometry shared by lamp and vase, as they are both round and sometimes hard to differentiate even for human without texture information.
 
 ## Q2. Segmentation Model
 - test accuracy of my best model: 89.5322%
@@ -41,13 +42,13 @@ left: ground truth; right: predicted.
  - procedure: test with different number of sampled points when evaluating.
     - visualization:
     1000 pts:
-    ![](output/q1_success_1000_17.gif)
+    ![](output/q1_success_1000_408.gif)
     100 pts:
-    ![](output/q1_success_100_17.gif)
+    ![](output/q1_success_100_408.gif)
     10 pts:
-    ![](output/q1_success_10_17.gif)
+    ![](output/q1_success_10_408.gif)
     1 pt:
-    ![](output/q1_success_1_17.gif)
+    ![](output/q1_success_1_408.gif)
 
  - results:
     - classification
