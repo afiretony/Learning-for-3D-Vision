@@ -1,4 +1,9 @@
- ## Overview
+ ## Assignemnt5: PointNet
+
+Chenhao Yang
+
+yangchenhao@cmu.edu
+
 In this assignment, I implemented a PointNet based architecture for classification and segmentation with point clouds.
 
 ## Q1. Classification Model
@@ -18,7 +23,7 @@ In this assignment, I implemented a PointNet based architecture for classificati
 Confusion matrix:
 ![](output/confusion_m.png)
 
-The classification for these three classes generally yield good results. We can interperate from confusion matrix that vase and lamp are easy to get false prediction while chair generally predicts well. This could be resulted from similar geometry shared by lamp and vase, as they are both round and sometimes hard to differentiate even for human without texture information.
+The classification for these three classes generally yield good results. We can interperate from confusion matrix that vase and lamp are easy to get false prediction while chair generally predicts well. This could be resulted from similar geometry shared by lamp and vase, as they are both round and sometimes hard to differentiate even for human without texture information. One more finding is that we noticed the unbalanced testing/training data as chair class are much larger than the rest of the classes, this may afftected our results as well.
 
 ## Q2. Segmentation Model
 - test accuracy of my best model: 89.5322%
@@ -70,6 +75,8 @@ left: ground truth; right: predicted.
         |100| 73.6709%|
         |10 |45.8184%|
         |1 |32.0907%|
+        
+        As stated in PointNet paper, the model has robustness to sampling, becasue the global feature still extractable with resuced sampled points.
 
 ### Testing of model robustness with noise
 - procedure: adding gaussian noise with zero mean and different standard deviation $\sigma$ to test data
@@ -78,11 +85,27 @@ torch.normal(mean=0, std = 0.01 * torch.ones_like(test_data))
 ```
 
 Visualization of noise added:
+
+0.01
+
 ![](output/q1_noise_0.01.gif)
+
+0.05
+
 ![](output/q1_noise_0.05.gif)
+
+0.1
+
 ![](output/q1_noise_0.1.gif)
+
+0.5
+
 ![](output/q1_noise_0.5.gif)
+
+1.0
+
 ![](output/q1_noise_1.gif)
+
 - results
     - Classification:
         | sigma | accuracy |
@@ -103,14 +126,5 @@ Visualization of noise added:
         | 0.1 | 67.7958%|
         | 0.5 | 41.8120%|
         | 1.0 | 37.8610%|
-
-
-
-## Q4. Bonus Question - Locality (20 points)
-Incorporate certain kind of locality as covered in the lecture (e.g. implement PointNet++ or DGCNN, etc).
-
-Deliverables: On your website, 
-
-- specify the model you have implemented
-- for each task, report the test accuracy of your best model, in comparison with your results from Q1 & Q2
-- visualize results in comparison to ones obtained in the earlier parts
+        
+        Surprisingly, PointNet still preserves certain classification and segmentation capability with heavy noise contamination. For instance, with STD equals 0.5, it's already nearly impossible for human to classify the models while PointNet still able to classify with nearly 70% accuracy. Therefore, we can conclude that PointNet is robust with gaussian noises.s
